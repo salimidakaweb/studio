@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "IRANSansX";
+  src: url("/fonts/IRANSansX-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANSansX";
+  src: url("/fonts/IRANSansX-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Brand primary — kept exactly as specified by client */
+  --primary: #4695B6;
+  --primary-light: #5FA8C7;
+  --primary-dark: #35768F;
+  --primary-rgb: 70, 149, 182;
+
+  /* Neutral palette — deepened for a more editorial, luxury feel */
+  --ink: #14120F;
+  --ink-soft: #1E1B17;
+  --black: #000000;
+  --white: #FFFFFF;
+  --cream: #F6F3EC;
+  --cream-deep: #EFEADD;
+  --background-light: #F5F7F8;
+  --text-muted: #6B7280;
+
+  /* Shadows tuned to the brand blue */
+  --shadow-primary: 0 8px 30px -8px rgba(var(--primary-rgb), 0.45);
+  --shadow-primary-lg: 0 20px 50px -12px rgba(var(--primary-rgb), 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--white);
+  color: var(--black);
+  font-family: "IRANSansX", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Editorial serif for display headings — pairs with the Persian sans for a magazine feel */
+.font-display {
+  font-family: "Playfair Display", "IRANSansX", serif;
+  font-style: italic;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--white);
+}
+
+/* Reusable primary-button treatment: gradient + tuned glow + refined hover lift */
+.btn-primary {
+  position: relative;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 55%, var(--primary-dark) 100%);
+  box-shadow: var(--shadow-primary);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-primary-lg);
+}
+
+.btn-outline-primary {
+  border: 1px solid rgba(var(--primary-rgb), 0.35);
+  color: var(--primary);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-outline-primary:hover {
+  border-color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.08);
+}
