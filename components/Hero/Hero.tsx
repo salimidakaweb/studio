@@ -16,10 +16,10 @@ const SLIDES = [
 // LCD screen position as a percentage of the camera image (1400x1000 source).
 // Measured directly from the provided photo.
 const SCREEN = {
-  left: 16.29,
-  top: 42.5,
-  width: 44.86,
-  height: 47,
+  left: 14,
+  top: 43,
+  width: 55,
+  height: 52,
 };
 
 const SLIDE_DURATION = 4500;
@@ -98,7 +98,7 @@ export default function Hero() {
       {/* Camera, floating + drifting toward the mouse */}
       <motion.div
         ref={wrapperRef}
-        className="relative w-[84vw] max-w-[680px] [perspective:1400px] sm:w-[68vw] md:w-[56vw] lg:w-[42vw] xl:max-w-[760px]"
+        className="relative w-[84vw] max-w-[680px] [perspective:1400px] sm:w-[68vw] md:w-[56vw] lg:w-[60vw] xl:max-w-[1700px]"
         initial={{ opacity: 0, scale: 0.82, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{
