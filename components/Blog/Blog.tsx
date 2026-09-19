@@ -49,10 +49,13 @@ export default function Blog() {
   const [cardStep, setCardStep] = useState(0);
   const [maxIndex, setMaxIndex] = useState(posts.length - 1);
   const [isInteracting, setIsInteracting] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const didDrag = useRef(false);
 
   // Measure card width (+ gap) and recompute on resize
   useEffect(() => {
+    setMounted(true);
+
     const measure = () => {
       const track = trackRef.current;
       const viewport = viewportRef.current;
@@ -89,7 +92,7 @@ export default function Blog() {
 
     const timer = setInterval(() => {
       setIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(timer);
   }, [isInteracting, maxIndex]);
@@ -133,8 +136,8 @@ export default function Blog() {
     }
   };
 
-  const atStart = index <= 0;
-  const atEnd = index >= maxIndex;
+  const atStart = mounted && index <= 0;
+  const atEnd = mounted && index >= maxIndex;
 
   return (
     <section
