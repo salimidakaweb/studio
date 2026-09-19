@@ -1,39 +1,34 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
 import Link from "next/link";
 
+// Sample photos from /public/images/slides — no external hosts, so the
+// section loads fine on Iranian networks. Swap in real shots per service later.
 const services = [
   {
-    number: "01",
     title: "عکاسی عروسی",
-    description: "ثبت لحظه‌های خاص روزی که قرار است همیشه در خاطرتان بماند.",
-    image:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop",
+    description: "ثبت لحظه‌های روزی که همیشه در خاطرتان می‌ماند.",
+    image: "/images/slides/sample-1.jpg",
     href: "/services/wedding",
   },
   {
-    number: "02",
     title: "فیلم‌برداری",
-    description: "روایت سینمایی لحظه‌های شما با نگاهی متفاوت و ماندگار.",
-    image:
-      "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?q=80&w=1200&auto=format&fit=crop",
+    description: "روایت سینمایی لحظه‌های شما با نگاهی متفاوت.",
+    image: "/images/slides/sample-2.jpg",
     href: "/services/filming",
   },
   {
-    number: "03",
     title: "عکاسی کودک",
-    description: "ثبت شیرین‌ترین لحظه‌های کودکی با فضایی صمیمی و خلاقانه.",
-    image:
-      "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?q=80&w=1200&auto=format&fit=crop",
+    description: "شیرین‌ترین لحظه‌های کودکی، در فضایی صمیمی.",
+    image: "/images/slides/sample-3.jpg",
     href: "/services/kids",
   },
   {
-    number: "04",
     title: "عکاسی پرتره",
-    description: "تصویری متفاوت از شما؛ ساده، حرفه‌ای و ماندگار.",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1200&auto=format&fit=crop",
+    description: "تصویری ساده، حرفه‌ای و ماندگار از شما.",
+    image: "/images/slides/sample-1.jpg",
     href: "/services/portrait",
   },
 ];
@@ -42,99 +37,81 @@ export default function Services() {
   return (
     <section
       id="services"
-      className="bg-[#171512] py-24 text-white lg:py-32"
+      className="bg-[#171512] py-12 text-white lg:flex lg:h-[670px] lg:items-center lg:py-0"
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-12">
-
+      <div className="mx-auto w-full max-w-6xl px-6 lg:px-12">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-          className="mb-16 flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+          transition={{ duration: 0.6 }}
+          className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-12"
         >
-          <div className="text-right md:max-w-2xl">
-            <span className="inline-flex items-center gap-3 text-xs tracking-[0.35em] text-[var(--primary-light)]">
-              <span className="h-px w-8 bg-[var(--primary)]" />
+          <div className="text-right">
+            <span className="inline-flex items-center gap-3 text-[11px] tracking-[0.3em] text-[var(--primary-light)]">
+              <span className="h-px w-6 bg-[var(--primary)]" />
               OUR SERVICES
             </span>
 
-            <h2 className="mt-4 text-4xl font-light leading-tight sm:text-5xl lg:text-6xl">
-              هر لحظه،
-              <br />
+            <h2 className="mt-3 text-2xl font-light leading-snug sm:text-3xl lg:text-4xl">
+              هر لحظه،{" "}
               <span className="font-medium">یک روایت.</span>
             </h2>
           </div>
 
-          <p className="max-w-sm text-right text-sm leading-7 text-white/50">
-            از ثبت لحظه‌های عروسی تا پرتره و کودک؛
-            ما داستان شما را با تصویر روایت می‌کنیم.
+          <p className="max-w-sm text-right text-[13px] leading-6 text-white/50">
+            از عروسی تا پرتره و کودک؛ داستان شما را با تصویر روایت می‌کنیم.
           </p>
         </motion.div>
 
-        {/* Services Grid */}
-        <div className="grid gap-5 md:grid-cols-2">
+        {/* Services row */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
           {services.map((service, index) => (
             <motion.div
-              key={service.number}
-              initial={{ opacity: 0, y: 50 }}
+              key={service.href}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{
-                duration: 0.7,
-                delay: index * 0.1,
-              }}
+              transition={{ duration: 0.6, delay: index * 0.08 }}
             >
               <Link
                 href={service.href}
-                className="group relative block h-[420px] overflow-hidden"
+                className="group relative block aspect-[4/5] overflow-hidden rounded-lg outline-none ring-[var(--primary-light)] focus-visible:ring-2 sm:aspect-auto sm:h-[280px] lg:h-[420px]"
               >
-                {/* Image */}
-                <motion.img
+                <Image
                   src={service.image}
                   alt={service.title}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  whileHover={{ scale: 1.06 }}
-                  transition={{ duration: 0.7 }}
+                  fill
+                  sizes="(max-width: 1024px) 50vw, 25vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
 
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent transition-all duration-500 group-hover:from-[var(--primary-dark)]/75" />
-
-                {/* Bottom accent line */}
-                <div className="absolute inset-x-0 bottom-0 h-[3px] origin-right scale-x-0 bg-[var(--primary)] transition-transform duration-500 group-hover:scale-x-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent transition-colors duration-500 group-hover:from-[var(--primary-dark)]/80" />
 
                 {/* Content */}
-                <div className="absolute inset-0 flex flex-col justify-between p-7 lg:p-9">
+                <div className="absolute inset-x-0 bottom-0 p-4 text-right lg:p-5">
+                  <h3 className="text-base font-medium lg:text-lg">
+                    {service.title}
+                  </h3>
 
-                  <div className="flex items-start justify-between">
-                    <span className="text-xs tracking-[0.25em] text-white/60">
-                      SERVICE
-                    </span>
-
-                    <span className="text-sm text-white/60">
-                      {service.number}
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <h3 className="text-3xl font-medium sm:text-4xl">
-                      {service.title}
-                    </h3>
-
-                    <p className="mt-4 max-w-md mr-auto text-sm leading-7 text-white/70">
-                      {service.description}
+                  {/* Description only on desktop: opens on hover/focus. Hidden on small screens where cards are too narrow to read it. */}
+                  <div className="hidden transition-[grid-template-rows] duration-500 ease-out lg:grid lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] lg:group-focus-visible:grid-rows-[1fr]">
+                    <p className="overflow-hidden text-xs leading-6 text-white/75">
+                      <span className="mt-2 block">{service.description}</span>
                     </p>
-
-                    <div className="mt-6 flex items-center justify-end gap-3 text-sm transition-colors duration-300 group-hover:text-[var(--primary-light)]">
-                      <span className="transition-transform duration-300 group-hover:-translate-x-2">
-                        ←
-                      </span>
-
-                      <span>مشاهده خدمات</span>
-                    </div>
                   </div>
+
+                  <span className="mt-3 flex items-center justify-end gap-2 text-xs text-white/80 transition-colors duration-300 group-hover:text-white">
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-300 group-hover:-translate-x-1"
+                    >
+                      ←
+                    </span>
+                    مشاهده
+                  </span>
                 </div>
               </Link>
             </motion.div>

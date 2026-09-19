@@ -28,61 +28,57 @@ export default function Booking() {
   return (
     <section
       id="booking"
-      className="overflow-hidden bg-[#f5f2ec] py-24 lg:py-32"
+      className="overflow-hidden bg-[#171512] py-16 text-white lg:py-20"
     >
-      <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24 lg:px-12">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 lg:px-12">
 
         {/* Intro */}
         <motion.div
-          initial={{ opacity: 0, x: -60 }}
+          initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{
-            duration: 0.9,
+            duration: 0.8,
             ease: [0.16, 1, 0.3, 1],
           }}
           className="flex flex-col justify-between text-right"
         >
           <div>
-            <span className="inline-flex items-center gap-3 text-xs tracking-[0.35em] text-[var(--primary-dark)]">
-              <span className="h-px w-8 bg-[var(--primary)]" />
+            <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-light)]">
+              <span className="h-px w-6 bg-[var(--primary)]" />
               BOOK A SESSION
             </span>
 
-            <h2 className="mt-5 text-5xl font-light leading-[1.15] text-[#171512] sm:text-6xl lg:text-7xl">
+            <h2 className="mt-3 text-2xl font-light leading-[1.3] sm:text-3xl lg:text-4xl">
               لحظه‌ی شما،
-              <br />
-              <span className="font-medium">
-                از همین‌جا شروع می‌شود.
-              </span>
+              <span className="font-medium"> از همین‌جا شروع می‌شود.</span>
             </h2>
 
-            <p className="mt-8 max-w-md mr-auto text-sm leading-8 text-black/50">
-              برای رزرو وقت یا دریافت اطلاعات بیشتر،
-              فرم روبه‌رو را تکمیل کنید.
-              کارشناسان ما در اولین فرصت با شما تماس خواهند گرفت.
+            <p className="mt-4 max-w-sm mr-auto text-[13px] leading-7 text-white/45">
+              برای رزرو وقت یا دریافت اطلاعات بیشتر، فرم روبه‌رو را
+              تکمیل کنید تا در اولین فرصت با شما تماس بگیریم.
             </p>
           </div>
 
           {/* Contact Info */}
-          <div className="mt-14 border-t border-black/10 pt-8">
-            <div className="grid grid-cols-2 gap-8">
+          <div className="mt-8 border-t border-white/10 pt-5">
+            <div className="grid grid-cols-2 gap-6">
               <div>
-                <span className="text-[10px] tracking-[0.25em] text-black/35">
+                <span className="text-[9px] tracking-[0.2em] text-white/30">
                   PHONE
                 </span>
 
-                <p className="mt-2 text-sm text-black/70">
+                <p className="mt-1 text-[13px] text-white/70">
                   ۰۹۱۲ ۱۲۳ ۴۵۶۷
                 </p>
               </div>
 
               <div>
-                <span className="text-[10px] tracking-[0.25em] text-black/35">
+                <span className="text-[9px] tracking-[0.2em] text-white/30">
                   LOCATION
                 </span>
 
-                <p className="mt-2 text-sm text-black/70">
+                <p className="mt-1 text-[13px] text-white/70">
                   تهران، ایران
                 </p>
               </div>
@@ -92,73 +88,74 @@ export default function Booking() {
 
         {/* Form */}
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
+          initial={{ opacity: 0, x: 40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{
-            duration: 0.9,
+            duration: 0.8,
             delay: 0.15,
             ease: [0.16, 1, 0.3, 1],
           }}
         >
           <form
             onSubmit={handleSubmit}
-            className="relative border border-black/10 bg-white/60 p-7 shadow-[0_30px_70px_-30px_rgba(20,18,15,0.25)] backdrop-blur-sm sm:p-9 lg:p-12"
+            className="relative rounded-sm border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm sm:p-6 lg:p-7"
           >
             {/* Form Header */}
-            <div className="mb-10 flex items-center justify-between border-b border-black/10 pb-6">
-              <span className="text-xs text-black/30">
+            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
+              <span className="text-[11px] text-white/25">
                 STEP 01 — 04
               </span>
 
-              <span className="text-xs tracking-[0.2em] text-black/40">
+              <span className="text-[11px] tracking-[0.15em] text-white/35">
                 YOUR DETAILS
               </span>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-4">
 
-              {/* Name */}
-              <div className="group">
-                <label
-                  htmlFor="name"
-                  className="mb-3 block text-right text-xs text-black/45"
-                >
-                  نام و نام خانوادگی
-                </label>
+              {/* Name + Phone */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="group">
+                  <label
+                    htmlFor="name"
+                    className="mb-2 block text-right text-[11px] text-white/40"
+                  >
+                    نام و نام خانوادگی
+                  </label>
 
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  placeholder="نام خود را وارد کنید"
-                  className="w-full border-b border-black/15 bg-transparent px-0 py-3 text-right text-sm outline-none transition-colors placeholder:text-black/20 focus:border-[var(--primary)]"
-                />
-              </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="نام خود را وارد کنید"
+                    className="w-full border-b border-white/15 bg-transparent px-0 py-2 text-right text-[13px] outline-none transition-colors placeholder:text-white/20 focus:border-[var(--primary)]"
+                  />
+                </div>
 
-              {/* Phone */}
-              <div className="group">
-                <label
-                  htmlFor="phone"
-                  className="mb-3 block text-right text-xs text-black/45"
-                >
-                  شماره تماس
-                </label>
+                <div className="group">
+                  <label
+                    htmlFor="phone"
+                    className="mb-2 block text-right text-[11px] text-white/40"
+                  >
+                    شماره تماس
+                  </label>
 
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  required
-                  placeholder="۰۹۱۲ ۱۲۳ ۴۵۶۷"
-                  className="w-full border-b border-black/15 bg-transparent px-0 py-3 text-right text-sm outline-none transition-colors placeholder:text-black/20 focus:border-[var(--primary)]"
-                />
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    placeholder="۰۹۱۲ ۱۲۳ ۴۵۶۷"
+                    className="w-full border-b border-white/15 bg-transparent px-0 py-2 text-right text-[13px] outline-none transition-colors placeholder:text-white/20 focus:border-[var(--primary)]"
+                  />
+                </div>
               </div>
 
               {/* Service */}
               <div>
-                <span className="mb-4 block text-right text-xs text-black/45">
+                <span className="mb-2 block text-right text-[11px] text-white/40">
                   نوع خدمات
                 </span>
 
@@ -171,10 +168,10 @@ export default function Booking() {
                         key={service}
                         type="button"
                         onClick={() => setSelectedService(service)}
-                        className={`rounded-full border px-4 py-3 text-xs transition-all duration-300 ${
+                        className={`rounded-full border px-3 py-2 text-[11px] transition-all duration-300 ${
                           active
                             ? "btn-primary border-transparent text-white"
-                            : "border-black/10 text-black/55 hover:border-[var(--primary)]/50 hover:text-[var(--primary-dark)]"
+                            : "border-white/15 text-white/55 hover:border-[var(--primary)]/50 hover:text-[var(--primary-light)]"
                         }`}
                       >
                         {service}
@@ -184,47 +181,48 @@ export default function Booking() {
                 </div>
               </div>
 
-              {/* Date */}
-              <div>
-                <label
-                  htmlFor="date"
-                  className="mb-3 block text-right text-xs text-black/45"
-                >
-                  تاریخ پیشنهادی
-                </label>
+              {/* Date + Message */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="date"
+                    className="mb-2 block text-right text-[11px] text-white/40"
+                  >
+                    تاریخ پیشنهادی
+                  </label>
 
-                <input
-                  id="date"
-                  name="date"
-                  type="date"
-                  className="w-full border-b border-black/15 bg-transparent px-0 py-3 text-right text-sm outline-none transition-colors focus:border-[var(--primary)]"
-                />
-              </div>
+                  <input
+                    id="date"
+                    name="date"
+                    type="date"
+                    className="w-full border-b border-white/15 bg-transparent px-0 py-2 text-right text-[13px] outline-none transition-colors [color-scheme:dark] focus:border-[var(--primary)]"
+                  />
+                </div>
 
-              {/* Message */}
-              <div>
-                <label
-                  htmlFor="message"
-                  className="mb-3 block text-right text-xs text-black/45"
-                >
-                  توضیحات
-                </label>
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="mb-2 block text-right text-[11px] text-white/40"
+                  >
+                    توضیحات
+                  </label>
 
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={3}
-                  placeholder="کمی درباره مراسم یا درخواست خود بنویسید..."
-                  className="w-full resize-none border-b border-black/15 bg-transparent px-0 py-3 text-right text-sm leading-7 outline-none transition-colors placeholder:text-black/20 focus:border-[var(--primary)]"
-                />
+                  <input
+                    id="message"
+                    name="message"
+                    type="text"
+                    placeholder="توضیح کوتاه..."
+                    className="w-full border-b border-white/15 bg-transparent px-0 py-2 text-right text-[13px] outline-none transition-colors placeholder:text-white/20 focus:border-[var(--primary)]"
+                  />
+                </div>
               </div>
 
               {/* Submit */}
               <motion.button
                 type="submit"
-                whileHover={{ y: -3 }}
+                whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className={`btn-primary group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full py-5 text-sm font-medium text-white ${
+                className={`btn-primary group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-full py-3.5 text-[13px] font-medium text-white ${
                   submitted ? "!bg-emerald-600 shadow-none" : ""
                 }`}
               >
@@ -240,11 +238,6 @@ export default function Booking() {
                   </span>
                 )}
               </motion.button>
-
-              <p className="text-center text-[10px] leading-6 text-black/30">
-                با ارسال فرم، کارشناسان آتلیه برای هماهنگی
-                با شما تماس خواهند گرفت.
-              </p>
             </div>
           </form>
         </motion.div>

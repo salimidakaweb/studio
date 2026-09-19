@@ -123,18 +123,19 @@ function PlanCard({
       />
 
       <div
-        className={`relative flex h-full min-h-[620px] flex-col overflow-hidden border p-7 transition-all duration-700 lg:p-9 ${
+        className={`relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-sm border p-5 transition-all duration-700 lg:p-6 ${
           plan.featured
-            ? "border-[var(--primary-light)]/40 bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] text-white shadow-[0_30px_70px_-20px_rgba(var(--primary-rgb),0.55)]"
-            : "border-white/10 bg-white/[0.02] text-white backdrop-blur-sm"
+            ? "border-[var(--primary-dark)]/30 bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] text-white shadow-[0_20px_45px_-18px_rgba(var(--primary-rgb),0.5)]"
+            : "border-black/10 bg-white text-[#171512] shadow-[0_10px_30px_-18px_rgba(20,18,15,0.25)]"
         }`}
       >
         {/* Mouse Spotlight */}
         <motion.div
           className="pointer-events-none absolute -inset-32 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           style={{
-            background:
-              "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 55%)",
+            background: plan.featured
+              ? "radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 55%)"
+              : "radial-gradient(circle, rgba(20,18,15,0.05) 0%, transparent 55%)",
             x: useTransform(springX, [-0.5, 0.5], [-120, 120]),
             y: useTransform(springY, [-0.5, 0.5], [-120, 120]),
           }}
@@ -149,10 +150,8 @@ function PlanCard({
             delay: index * 0.15 + 0.4,
             duration: 0.6,
           }}
-          className={`absolute -bottom-8 -left-3 text-[150px] font-light leading-none transition-transform duration-1000 group-hover:-translate-y-5 ${
-            plan.featured
-              ? "text-white/10"
-              : "text-white/[0.025]"
+          className={`absolute -bottom-5 -left-2 text-[90px] font-light leading-none transition-transform duration-1000 group-hover:-translate-y-3 ${
+            plan.featured ? "text-white/10" : "text-black/[0.04]"
           }`}
         >
           0{index + 1}
@@ -161,10 +160,8 @@ function PlanCard({
         {/* Top */}
         <div className="relative z-10 flex items-start justify-between">
           <span
-            className={`text-[10px] tracking-[0.35em] ${
-              plan.featured
-                ? "text-white/60"
-                : "text-white/30"
+            className={`text-[10px] tracking-[0.3em] ${
+              plan.featured ? "text-white/60" : "text-black/35"
             }`}
           >
             {plan.name}
@@ -179,7 +176,7 @@ function PlanCard({
                 duration: 2,
                 repeat: Infinity,
               }}
-              className="rounded-full bg-white/15 px-3 py-1 text-[9px] tracking-[0.3em] text-white"
+              className="rounded-full bg-white/15 px-2.5 py-1 text-[8px] tracking-[0.25em] text-white"
             >
               RECOMMENDED
             </motion.span>
@@ -187,9 +184,9 @@ function PlanCard({
         </div>
 
         {/* Title */}
-        <div className="relative z-10 mt-16 text-right">
+        <div className="relative z-10 mt-8 text-right">
           <motion.h3
-            className="text-3xl font-medium lg:text-4xl"
+            className="text-xl font-medium lg:text-2xl"
             whileHover={{ x: -6 }}
             transition={{ duration: 0.3 }}
           >
@@ -197,10 +194,8 @@ function PlanCard({
           </motion.h3>
 
           <p
-            className={`mt-4 max-w-sm mr-auto text-sm leading-7 ${
-              plan.featured
-                ? "text-white/75"
-                : "text-white/45"
+            className={`mt-2 max-w-sm mr-auto text-xs leading-6 ${
+              plan.featured ? "text-white/75" : "text-black/50"
             }`}
           >
             {plan.description}
@@ -209,32 +204,26 @@ function PlanCard({
 
         {/* Price */}
         <div
-          className={`relative z-10 mt-12 border-t pt-7 ${
-            plan.featured
-              ? "border-white/20"
-              : "border-white/10"
+          className={`relative z-10 mt-6 border-t pt-4 ${
+            plan.featured ? "border-white/20" : "border-black/10"
           }`}
         >
           <span
-            className={`text-xs ${
-              plan.featured
-                ? "text-white/60"
-                : "text-white/30"
+            className={`text-[11px] ${
+              plan.featured ? "text-white/60" : "text-black/35"
             }`}
           >
             شروع قیمت
           </span>
 
-          <div className="mt-2 flex items-baseline justify-end gap-2">
-            <span className="text-5xl font-light tracking-tight">
+          <div className="mt-1 flex items-baseline justify-end gap-2">
+            <span className="text-3xl font-light tracking-tight">
               {plan.price}
             </span>
 
             <span
-              className={`text-xs ${
-                plan.featured
-                  ? "text-white/60"
-                  : "text-white/30"
+              className={`text-[11px] ${
+                plan.featured ? "text-white/60" : "text-black/35"
               }`}
             >
               میلیون تومان
@@ -243,7 +232,7 @@ function PlanCard({
         </div>
 
         {/* Features */}
-        <ul className="relative z-10 mt-10 flex-1 space-y-4">
+        <ul className="relative z-10 mt-5 flex-1 space-y-2.5">
           {plan.features.map((feature, featureIndex) => (
             <motion.li
               key={feature}
@@ -256,19 +245,15 @@ function PlanCard({
                   featureIndex * 0.08 +
                   0.5,
               }}
-              className={`flex items-center justify-end gap-3 text-sm ${
-                plan.featured
-                  ? "text-white/85"
-                  : "text-white/60"
+              className={`flex items-center justify-end gap-2.5 text-[13px] ${
+                plan.featured ? "text-white/85" : "text-black/65"
               }`}
             >
               <span>{feature}</span>
 
               <span
                 className={`h-1 w-1 rounded-full transition-transform duration-300 group-hover:scale-150 ${
-                  plan.featured
-                    ? "bg-white/70"
-                    : "bg-white/40"
+                  plan.featured ? "bg-white/70" : "bg-[var(--primary)]/60"
                 }`}
               />
             </motion.li>
@@ -278,10 +263,10 @@ function PlanCard({
         {/* Button */}
         <Link
           href="/booking"
-          className={`group/button relative z-10 mt-10 flex items-center justify-center gap-4 overflow-hidden rounded-full border py-4 text-sm font-medium transition-all duration-500 ${
+          className={`group/button relative z-10 mt-6 flex items-center justify-center gap-3 overflow-hidden rounded-full border py-3 text-xs font-medium transition-all duration-500 ${
             plan.featured
-              ? "border-white/40 bg-white text-[var(--primary-dark)] shadow-[0_15px_35px_-12px_rgba(0,0,0,0.35)]"
-              : "border-white/20 text-white"
+              ? "border-white/40 bg-white text-[var(--primary-dark)] shadow-[0_10px_25px_-12px_rgba(0,0,0,0.35)]"
+              : "border-black/15 text-[#171512]"
           }`}
         >
           {!plan.featured && (
@@ -308,9 +293,7 @@ function PlanCard({
         {/* Bottom line */}
         <motion.div
           className={`absolute bottom-0 right-0 h-[2px] w-full origin-right ${
-            plan.featured
-              ? "bg-white/30"
-              : "bg-white/30"
+            plan.featured ? "bg-white/30" : "bg-[var(--primary)]/30"
           }`}
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
@@ -329,15 +312,15 @@ export default function Plans() {
   return (
     <section
       id="plans"
-      className="relative overflow-hidden bg-[#171512] py-24 text-white lg:py-32"
+      className="relative flex h-[650px] items-center overflow-hidden bg-[#f5f2ec]"
     >
       {/* Ambient Light */}
       <motion.div
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-[110px]"
         style={{ background: "var(--primary)" }}
         animate={{
           scale: [1, 1.15, 1],
-          opacity: [0.15, 0.3, 0.15],
+          opacity: [0.08, 0.16, 0.08],
         }}
         transition={{
           duration: 8,
@@ -346,35 +329,32 @@ export default function Plans() {
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 lg:px-12">
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{
-            duration: 0.9,
+            duration: 0.8,
             ease: [0.16, 1, 0.3, 1],
           }}
-          className="mb-16 text-right"
+          className="mb-6 text-right"
         >
-          <span className="inline-flex items-center gap-3 text-xs tracking-[0.35em] text-[var(--primary-light)]">
-            <span className="h-px w-8 bg-[var(--primary)]" />
+          <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
+            <span className="h-px w-6 bg-[var(--primary)]" />
             PACKAGES
           </span>
 
-          <h2 className="mt-4 text-4xl font-light leading-tight sm:text-5xl lg:text-6xl">
+          <h2 className="mt-2 text-2xl font-light leading-tight text-[#171512] sm:text-3xl lg:text-4xl">
             برای هر لحظه،
-            <br />
-            <span className="font-medium">
-              یک انتخاب.
-            </span>
+            <span className="font-medium"> یک انتخاب.</span>
           </h2>
         </motion.div>
 
         {/* Cards */}
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           {plans.map((plan, index) => (
             <PlanCard
               key={plan.name}
@@ -393,7 +373,7 @@ export default function Plans() {
             duration: 0.8,
             delay: 0.5,
           }}
-          className="mt-8 text-right text-xs leading-6 text-white/25"
+          className="mt-4 text-right text-[11px] leading-6 text-black/35"
         >
           * قیمت‌ها نمونه هستند و با توجه به نوع مراسم و خدمات
           انتخابی قابل تغییر خواهند بود.
