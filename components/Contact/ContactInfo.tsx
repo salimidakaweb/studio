@@ -148,7 +148,7 @@ export default function ContactInfo() {
 
           <h1 className="mt-3 text-3xl font-light leading-tight text-[#171512] sm:text-4xl lg:text-5xl">
             {about.title}
-            <span className="font-medium text-[var(--primary)]"> {about.highlightBlue}</span>
+            <span className="font-bold text-[var(--primary)]"> {about.highlightBlue}</span>
             <span className="font-medium text-[#171512]"> {about.highlightRest}</span>
           </h1>
 
