@@ -23,12 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className={playfair.variable}>
+    <html
+      lang="fa"
+      dir="rtl"
+      className={playfair.variable}
+      data-scroll-behavior="smooth">
       <body>
         <Navbar />
         {children}
         <Footer />
-        </body>
+      </body>
     </html>
   );
 }
