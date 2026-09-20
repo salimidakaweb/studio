@@ -25,10 +25,80 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock page scroll while the mobile menu is open.
+  // `position: fixed` on body is the only approach that reliably stops
+  // scrolling on iOS Safari; we restore the exact scroll position on close.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      // Restore without the smooth-scroll animation defined in globals.css
+      window.scrollTo({ top: scrollY, behavior: "instant" as ScrollBehavior });
+    };
+  }, [isOpen]);
+
+  // Close the menu on Escape, or if the viewport grows to desktop size.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onMq = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    mq.addEventListener("change", onMq);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", onMq);
+    };
+  }, [isOpen]);
+
   return (
     <>
       {/* Spacer so page content doesn't jump under the fixed bar */}
       <div className="h-24" />
+
+      {/* Blurred backdrop behind the mobile menu; tap to close */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="menu-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
       <motion.div
         initial={{ y: -40, opacity: 0 }}
@@ -43,19 +113,30 @@ export default function Navbar() {
             borderRadius: scrolled ? 999 : 0,
           }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className={`${
+          className={`text-[#171512] [color-scheme:light] ${
             scrolled
               ? "border border-white/60 bg-white/70 shadow-[0_15px_45px_-15px_rgba(20,18,15,0.25)] backdrop-blur-xl"
               : "border-b border-black/5 bg-white shadow-none"
           }`}
         >
           <nav className="flex h-20 items-center justify-between px-5 transition-all duration-500 sm:px-8 lg:px-10">
-            {/* Logo (right side, RTL start) */}
+            {/* Logo + brand name (logo first, i.e. right side in RTL) */}
             <Link
               href="/"
               className="flex items-center gap-3"
               onClick={() => setIsOpen(false)}
             >
+              <Image
+                src="/images/logo.png"
+                alt="آتلیه بختیاری"
+                width={56}
+                height={56}
+                className="h-11 w-11 object-contain sm:h-14 sm:w-14"
+                priority
+              />
+
+              <span className="hidden h-9 w-px bg-black/10 sm:block" />
+
               <div className="text-right leading-tight">
                 <div className="text-lg font-bold tracking-tight text-[#171512] sm:text-xl">
                   استودیو عکاسی{" "}
@@ -66,17 +147,6 @@ export default function Navbar() {
                   Bakhtiari Photography Studio
                 </div>
               </div>
-
-              <span className="hidden h-9 w-px bg-black/10 sm:block" />
-
-              <Image
-                src="/images/logo.png"
-                alt="آتلیه بختیاری"
-                width={56}
-                height={56}
-                className="h-11 w-11 object-contain sm:h-14 sm:w-14"
-                priority
-              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -122,25 +192,6 @@ export default function Navbar() {
                 </svg>
                 0912 123 4567
               </a>
-
-              {/* Search icon */}
-              <button
-                type="button"
-                aria-label="جستجو"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 text-black/60 transition-all duration-300 hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
-              >
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
-              </button>
 
               {/* Booking button */}
               <Link
@@ -205,7 +256,7 @@ export default function Navbar() {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.35 }}
-                className="overflow-hidden bg-white/98 backdrop-blur-xl lg:hidden"
+                className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain bg-white lg:hidden"
               >
                 <div className="flex flex-col px-6 py-6">
                   {navItems.map((item, index) => (
@@ -221,7 +272,7 @@ export default function Navbar() {
                       <Link
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="group flex items-center justify-between border-b border-black/10 py-4 text-base font-medium transition-colors hover:text-[var(--primary)]"
+                        className="group flex items-center justify-between border-b border-black/10 py-4 text-base font-medium text-[#171512] transition-colors hover:text-[var(--primary)]"
                       >
                         {item.title}
                         <span className="text-black/20 transition-all duration-300 group-hover:-translate-x-1 group-hover:text-[var(--primary)]">

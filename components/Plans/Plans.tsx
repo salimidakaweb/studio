@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const plans = [
   {
@@ -113,7 +114,8 @@ function PlanCard({
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group relative"
+      data-plan-card
+      className="group relative w-[82%] shrink-0 snap-center sm:w-[60%] md:w-[46%] lg:w-auto lg:shrink lg:snap-align-none"
     >
       {/* Glow */}
       <motion.div
@@ -309,10 +311,65 @@ function PlanCard({
 }
 
 export default function Plans() {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(1);
+
+  // Mobile/tablet: start on the featured (middle) card, and track which card is centered
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const cards = Array.from(
+      scroller.querySelectorAll<HTMLElement>("[data-plan-card]")
+    );
+
+    const isCarousel = () => window.matchMedia("(max-width: 1023px)").matches;
+
+    const centerCard = (i: number, smooth: boolean) => {
+      const card = cards[i];
+      if (!card) return;
+      const left =
+        card.offsetLeft - (scroller.clientWidth - card.offsetWidth) / 2;
+      scroller.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
+    };
+
+    if (isCarousel()) centerCard(1, false);
+
+    const onScroll = () => {
+      if (!isCarousel()) return;
+      const center = scroller.scrollLeft + scroller.clientWidth / 2;
+      let best = 0;
+      let bestDist = Infinity;
+      cards.forEach((card, i) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const dist = Math.abs(cardCenter - center);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => scroller.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const goToCard = (i: number) => {
+    const scroller = scrollerRef.current;
+    const card = scroller?.querySelectorAll<HTMLElement>("[data-plan-card]")[i];
+    if (!scroller || !card) return;
+    scroller.scrollTo({
+      left: card.offsetLeft - (scroller.clientWidth - card.offsetWidth) / 2,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <section
       id="plans"
-      className="relative flex h-[650px] items-center overflow-hidden bg-[#f5f2ec]"
+      className="relative flex items-center overflow-hidden bg-[#f5f2ec] py-14 lg:h-[650px] lg:py-0"
     >
       {/* Ambient Light */}
       <motion.div
@@ -353,13 +410,33 @@ export default function Plans() {
           </h2>
         </motion.div>
 
-        {/* Cards */}
-        <div className="grid gap-4 lg:grid-cols-3">
+        {/* Cards: horizontal snap carousel on mobile/tablet, 3-col grid on desktop */}
+        <div
+          ref={scrollerRef}
+          className="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-6 pb-6 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:snap-none lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
+        >
           {plans.map((plan, index) => (
             <PlanCard
               key={plan.name}
               plan={plan}
               index={index}
+            />
+          ))}
+        </div>
+
+        {/* Progress dots (mobile/tablet only) */}
+        <div className="mt-1 flex justify-center gap-1.5 lg:hidden">
+          {plans.map((plan, i) => (
+            <button
+              key={plan.name}
+              type="button"
+              onClick={() => goToCard(i)}
+              aria-label={`نمایش ${plan.title}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === active
+                  ? "w-5 bg-[var(--primary)]"
+                  : "w-1.5 bg-black/15 hover:bg-black/25"
+              }`}
             />
           ))}
         </div>

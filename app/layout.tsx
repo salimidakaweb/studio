@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar/Navbar";
+import Footer from "@/components/Footer/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -22,7 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" className={playfair.variable}>
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+        <Footer />
+        </body>
     </html>
   );
 }
