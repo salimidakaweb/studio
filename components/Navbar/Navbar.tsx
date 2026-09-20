@@ -8,10 +8,10 @@ import { AnimatePresence, motion } from "motion/react";
 
 const navItems = [
   { title: "خانه", href: "/" },
-  { title: "درباره ما", href: "/about" },
   { title: "خدمات", href: "/#services" },
   { title: "گالری", href: "/#portfolio" },
   { title: "وبلاگ", href: "/blog" },
+  { title: "درباره ما", href: "/about" },
   { title: "تماس با ما", href: "/contact" },
 ];
 
