@@ -131,7 +131,7 @@ export default function ContactInfo() {
         style={{ background: "var(--primary)" }}
       />
 
-      <div className="relative mx-auto w-full max-w-6xl px-6 lg:px-12">
+      <div className="relative mx-auto w-full max-w-6xl px-6 lg:px-12 bg-white p-5">
         {/* Intro */}
         <Reveal className="mb-10 text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
