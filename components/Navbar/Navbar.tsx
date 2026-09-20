@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 
 const navItems = [
@@ -14,7 +15,14 @@ const navItems = [
   { title: "تماس با ما", href: "/contact" },
 ];
 
+function isActivePath(pathname: string, href: string) {
+  if (href.includes("#")) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -151,27 +159,30 @@ export default function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden items-center gap-7 lg:flex">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group relative py-2 text-sm font-medium transition-colors duration-300 ${
-                    item.title === "خانه"
-                      ? "text-[var(--primary)]"
-                      : "text-black/70 hover:text-[var(--primary)]"
-                  }`}
-                >
-                  {item.title}
+              {navItems.map((item) => {
+                const active = isActivePath(pathname, item.href);
 
-                  <span
-                    className={`absolute -bottom-0.5 right-0 h-[2px] bg-[var(--primary)] transition-all duration-300 ease-out ${
-                      item.title === "خانه"
-                        ? "w-full"
-                        : "w-0 group-hover:w-full"
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`group relative py-2 text-sm font-medium transition-colors duration-300 ${
+                      active
+                        ? "text-[var(--primary)]"
+                        : "text-black/70 hover:text-[var(--primary)]"
                     }`}
-                  />
-                </Link>
-              ))}
+                  >
+                    {item.title}
+
+                    <span
+                      className={`absolute -bottom-0.5 right-0 h-[2px] bg-[var(--primary)] transition-all duration-300 ease-out ${
+                        active ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
+                    />
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Right-side actions (visually left, due to RTL flex order) */}
@@ -259,28 +270,41 @@ export default function Navbar() {
                 className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain bg-white lg:hidden"
               >
                 <div className="flex flex-col px-6 py-6">
-                  {navItems.map((item, index) => (
-                    <motion.div
-                      key={item.href}
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: index * 0.06,
-                        duration: 0.3,
-                      }}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={() => setIsOpen(false)}
-                        className="group flex items-center justify-between border-b border-black/10 py-4 text-base font-medium text-[#171512] transition-colors hover:text-[var(--primary)]"
+                  {navItems.map((item, index) => {
+                    const active = isActivePath(pathname, item.href);
+
+                    return (
+                      <motion.div
+                        key={item.href}
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: index * 0.06,
+                          duration: 0.3,
+                        }}
                       >
-                        {item.title}
-                        <span className="text-black/20 transition-all duration-300 group-hover:-translate-x-1 group-hover:text-[var(--primary)]">
-                          ←
-                        </span>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        <Link
+                          href={item.href}
+                          onClick={() => setIsOpen(false)}
+                          aria-current={active ? "page" : undefined}
+                          className={`group flex items-center justify-between border-b border-black/10 py-4 text-base font-medium transition-colors hover:text-[var(--primary)] ${
+                            active
+                              ? "text-[var(--primary)]"
+                              : "text-[#171512]"
+                          }`}
+                        >
+                          {item.title}
+                          <span
+                            className={`transition-all duration-300 group-hover:-translate-x-1 group-hover:text-[var(--primary)] ${
+                              active ? "text-[var(--primary)]" : "text-black/20"
+                            }`}
+                          >
+                            ←
+                          </span>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
 
                   <a
                     href="tel:+989121234567"
