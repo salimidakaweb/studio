@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Reveal from "../Ui/Reveal";
 import HoverLift from "../Ui/HoverLift";
+import HoverCard from "../Ui/Hovercard";
+
 
 /* ------------------------------------------------------------------ */
 /*  Editable content — change everything you need right here          */
@@ -9,11 +11,17 @@ import HoverLift from "../Ui/HoverLift";
 const about = {
   eyebrow: "CONTACT",
   title: "همیشه در",
-  highlight: "دسترس شما هستیم.",
+  highlightBlue: "دسترس",
+  highlightRest: "شما هستیم.",
   paragraphs: [
     "آتلیه بختیاری با سال‌ها تجربه در عکاسی کودک، خانواده و مراسم، تلاش می‌کند لحظه‌های خاص شما را با نگاهی هنرمندانه و ماندگار ثبت کند.",
     "تیم ما با فضایی آرام و صمیمی همراه شماست تا نتیجه‌ای بگیرید که سال‌ها به دیدنش لبخند بزنید. برای مشاوره، رزرو وقت یا هر سؤالی، از راه‌های زیر با ما در تماس باشید.",
   ],
+};
+
+const ctaButtons = {
+  primary: { label: "رزرو وقت عکاسی", href: "/booking" },
+  secondary: { label: "تماس مستقیم", href: "tel:+982112345678" },
 };
 
 const phones = [
@@ -89,31 +97,30 @@ function Block({
   children: ReactNode;
 }) {
   return (
-    <Reveal
-      delay={index * 0.08}
-      className="border-t border-black/10 pt-5 text-right"
-    >
-      <div className="mb-4 flex items-center justify-start gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--primary)]/30 text-[var(--primary)]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={icon === "phone" ? "currentColor" : "none"}
-            stroke={icon === "phone" ? "none" : "currentColor"}
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            {icons[icon]}
-          </svg>
-        </span>
+    <Reveal delay={index * 0.08} className="h-full">
+      <HoverCard className="h-full rounded-2xl border border-black/10 bg-white p-6 text-right">
+        <div className="mb-4 flex items-center justify-start gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--primary)]/30 text-[var(--primary)]">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={icon === "phone" ? "currentColor" : "none"}
+              stroke={icon === "phone" ? "none" : "currentColor"}
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {icons[icon]}
+            </svg>
+          </span>
 
-        <h3 className="text-sm font-medium text-[#171512]">{title}</h3>
-      </div>
+          <h3 className="text-sm font-medium text-[#171512]">{title}</h3>
+        </div>
 
-      {children}
+        {children}
+      </HoverCard>
     </Reveal>
   );
 }
@@ -131,7 +138,7 @@ export default function ContactInfo() {
         style={{ background: "var(--primary)" }}
       />
 
-      <div className="relative mx-auto w-full max-w-6xl px-6 lg:px-12 bg-white p-5">
+      <div className="relative mx-auto w-full max-w-6xl px-6 lg:px-12">
         {/* Intro */}
         <Reveal className="mb-10 text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
@@ -141,7 +148,8 @@ export default function ContactInfo() {
 
           <h1 className="mt-3 text-3xl font-light leading-tight text-[#171512] sm:text-4xl lg:text-5xl">
             {about.title}
-            <span className="font-medium"> {about.highlight}</span>
+            <span className="font-medium text-[var(--primary)]"> {about.highlightBlue}</span>
+            <span className="font-medium text-[#171512]"> {about.highlightRest}</span>
           </h1>
 
           <div className="mt-5 max-w-2xl space-y-3 text-[13px] leading-7 text-black/55 sm:text-sm sm:leading-8">
@@ -149,23 +157,37 @@ export default function ContactInfo() {
               <p key={p}>{p}</p>
             ))}
           </div>
+
+          {/* CTA buttons */}
+          <div className="mt-6 flex flex-wrap items-center justify-start gap-3">
+            <a
+              href={ctaButtons.primary.href}
+              className="btn-primary group relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-6 py-3 text-[13px] font-medium text-white transition-transform duration-300 hover:-translate-y-0.5"
+            >
+              {ctaButtons.primary.label}
+            </a>
+            <a
+              href={ctaButtons.secondary.href}
+              dir="ltr"
+              className="rounded-full border border-black/15 px-6 py-3 text-[13px] font-medium text-[#171512] transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--primary)] hover:text-[var(--primary-dark)]"
+            >
+              {ctaButtons.secondary.label}
+            </a>
+          </div>
         </Reveal>
 
         {/* Info blocks */}
-        <div className="grid gap-x-12 gap-y-8 md:grid-cols-2">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Phones */}
           <Block icon="phone" title="شماره‌های تماس" index={0}>
             <ul className="space-y-2.5">
               {phones.map((phone) => (
-                <li
-                  key={phone.label}
-                  className="flex items-center justify-between gap-4 text-[13px]"
-                >
-                  <span className="text-black/40">{phone.label}</span>
+                <li key={phone.label} className="text-[13px]">
+                  <span className="block text-black/40">{phone.label}</span>
                   <a
                     href={phone.href}
                     dir="ltr"
-                    className="text-[#171512] transition-colors duration-300 hover:text-[var(--primary)]"
+                    className="mt-0.5 block text-[#171512] transition-colors duration-300 hover:text-[var(--primary)]"
                   >
                     {phone.display}
                   </a>
@@ -178,15 +200,12 @@ export default function ContactInfo() {
           <Block icon="mail" title="ایمیل" index={1}>
             <ul className="space-y-2.5">
               {emails.map((email) => (
-                <li
-                  key={email.address}
-                  className="flex items-center justify-between gap-4 text-[13px]"
-                >
-                  <span className="shrink-0 text-black/40">{email.label}</span>
+                <li key={email.address} className="text-[13px]">
+                  <span className="block text-black/40">{email.label}</span>
                   <a
                     href={`mailto:${email.address}`}
                     dir="ltr"
-                    className="truncate text-[#171512] transition-colors duration-300 hover:text-[var(--primary)]"
+                    className="mt-0.5 block truncate text-[#171512] transition-colors duration-300 hover:text-[var(--primary)]"
                   >
                     {email.address}
                   </a>
