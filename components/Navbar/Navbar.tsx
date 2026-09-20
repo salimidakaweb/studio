@@ -89,8 +89,10 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Spacer so page content doesn't jump under the fixed bar */}
-      <div className="h-24" />
+      {/* Spacer so page content doesn't jump under the fixed bar.
+          Must match the header's real height (nav is h-20 = 80px) exactly,
+          otherwise a visible gap appears between the header and the page content. */}
+      <div className="h-20" />
 
       {/* Blurred backdrop behind the mobile menu; tap to close */}
       <AnimatePresence>
