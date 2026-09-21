@@ -61,6 +61,42 @@ export default function HeroCamera() {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // Start the entrance (camera + text together) only once the camera image is
+  // actually loaded, so the text never shows up alone. Both use CSS animations
+  // that stay paused until <section data-hero-ready="true">. A timeout makes
+  // sure a slow/failed image can never keep the hero hidden.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    const section = el?.closest("section");
+    const img = el?.querySelector("img");
+    if (!el || !section) return;
+
+    let done = false;
+    const ready = () => {
+      if (done) return;
+      done = true;
+      section.setAttribute("data-hero-ready", "true");
+    };
+
+    const timeout = window.setTimeout(ready, 2500);
+
+    if (img && img.complete && img.naturalWidth > 0) {
+      // decode() so the first painted frame already has the image
+      img.decode().catch(() => {}).finally(ready);
+    } else if (img) {
+      img.addEventListener("load", ready, { once: true });
+      img.addEventListener("error", ready, { once: true });
+    } else {
+      ready();
+    }
+
+    return () => {
+      window.clearTimeout(timeout);
+      img?.removeEventListener("load", ready);
+      img?.removeEventListener("error", ready);
+    };
+  }, []);
+
   // The hero <section> is a server component now, so instead of an onMouseMove
   // prop on it we listen on the closest <section> from here. Same behaviour as
   // before: the whole hero area drives the camera.
@@ -88,16 +124,9 @@ export default function HeroCamera() {
   }, [mouseX, mouseY]);
 
   return (
-    <motion.div
+    <div
       ref={wrapperRef}
-      className="relative w-[92vw] max-w-[820px] shrink-0 [perspective:1400px] sm:w-[80vw] md:w-[68vw] lg:w-[54vw] xl:max-w-[1700px]"
-      initial={{ opacity: 0, scale: 0.82, y: 50 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{
-        duration: 1.5,
-        delay: 0.2,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+      className="hero-camera-in relative w-[92vw] max-w-[820px] shrink-0 [perspective:1400px] sm:w-[80vw] md:w-[68vw] lg:w-[54vw] xl:max-w-[1700px]"
     >
       {/* Continuous gentle float (up/down), independent of the mouse-follow layer */}
       <motion.div
@@ -165,6 +194,6 @@ export default function HeroCamera() {
           </div>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

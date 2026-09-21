@@ -3,8 +3,9 @@ import HeroCamera from "./HeroCamera";
 
 // Server component: the h1 / paragraph / buttons are in the initial HTML.
 // The only client-side piece is <HeroCamera /> (mouse-follow camera + LCD slider).
-// The content entrance uses a CSS animation (.hero-fade-up in globals.css) so the
-// headline appears without waiting for JavaScript to hydrate.
+// Entrance: the text (.hero-fade-up) and the camera (.hero-camera-in) are both CSS
+// animations that start together, once <HeroCamera /> marks the section as
+// data-hero-ready (= camera image loaded). See globals.css.
 
 export default function Hero() {
   return (
@@ -15,6 +16,11 @@ export default function Hero() {
           "radial-gradient(ellipse 90% 70% at 50% 45%, #1B2A33 0%, #0F1B22 45%, #0A1318 100%)",
       }}
     >
+      {/* Without JS the "ready" signal never comes, so just play the entrance. */}
+      <noscript>
+        <style>{`.hero-fade-up,.hero-camera-in{animation-play-state:running!important}`}</style>
+      </noscript>
+
       {/* Soft ambient glow behind the camera */}
       <div
         aria-hidden="true"
