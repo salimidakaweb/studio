@@ -1,9 +1,10 @@
-"use client";
-
-import { motion, useAnimationControls } from "motion/react";
-import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Reveal from "@/components/Ui/Reveal";
+import PendulumLabel from "./PendulumLabel";
+
+// Server component: heading, links, images and labels are all in the initial
+// HTML. Client leaves: <Reveal /> (scroll fade-in) and <PendulumLabel /> (swing).
 
 const categories = [
   {
@@ -74,64 +75,10 @@ function trianglePath(direction: "up" | "down"): string {
 const UP_PATH = trianglePath("up");
 const DOWN_PATH = trianglePath("down");
 
-function threadHeight(direction: "up" | "down"): number {
-  return direction === "down" ? 40 : 28;
-}
-
-function PendulumLabel({
-  title,
-  direction,
-  index,
-}: {
-  title: string;
-  direction: "up" | "down";
-  index: number;
-}) {
-  const controls = useAnimationControls();
-  const thread = threadHeight(direction);
-
-  useEffect(() => {
-    controls.start({
-      rotate: [0, 9, -9, 7, -7, 5, -5, 3, -3, 1, -1, 0],
-      transition: {
-        duration: 4,
-        delay: index * 0.22,
-        ease: "easeInOut",
-        repeat: Infinity,
-        repeatDelay: 3.5,
-      },
-    });
-  }, [controls, index]);
-
-  return (
-    <motion.div
-      animate={controls}
-      style={{
-        transformOrigin: "50% 0%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <span
-        className="block w-px bg-cyan-700/60"
-        style={{ height: `${thread}px` }}
-        aria-hidden="true"
-      />
-      <h3
-        className="whitespace-nowrap rounded-sm border border-cyan-700/30 bg-[#f5f2ec] px-3 py-1 text-lg text-cyan-700 shadow-sm"
-        style={{ direction: "rtl" }}
-      >
-        {title}
-      </h3>
-    </motion.div>
-  );
-}
-
 export default function Categories() {
   return (
     <section className="relative overflow-hidden bg-[#f5f2ec] py-16 lg:py-24">
-      <svg width="0" height="0" className="absolute">
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
           <clipPath
             id="cat-triangle-up"
@@ -151,13 +98,7 @@ export default function Categories() {
       </svg>
 
       <div className="mx-auto max-w-7xl px-6 lg:px-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
-          className="mb-16 text-right"
-        >
+        <Reveal y={30} className="mb-16 text-right">
           <span className="inline-flex items-center gap-3 text-xs tracking-[0.35em] text-[var(--primary-dark)]">
             <span className="h-px w-8 bg-[var(--primary)]" />
             EXPLORE OUR WORK
@@ -166,7 +107,7 @@ export default function Categories() {
             لحظه‌ای که{" "}
             <span className="font-medium">شما را روایت می‌کند.</span>
           </h2>
-        </motion.div>
+        </Reveal>
 
         <div
           className="relative mx-auto flex w-full overflow-visible"
@@ -174,22 +115,14 @@ export default function Categories() {
         >
           {categories.map((category, index) => {
             const direction: "up" | "down" = index % 2 === 0 ? "up" : "down";
+            const isLast = index === categories.length - 1;
 
             return (
-              <motion.div
+              <Reveal
                 key={category.href}
-                initial={{ opacity: 0, y: direction === "up" ? 80 : -80 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{
-                  duration: 0.75,
-                  delay: index * 0.45,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="relative flex-1"
-                style={{
-                  marginInlineEnd: index < categories.length - 1 ? "-12%" : 0,
-                }}
+                y={direction === "up" ? 80 : -80}
+                delay={index * 0.45}
+                className={`relative flex-1 ${isLast ? "" : "-me-[12%]"}`}
               >
                 <Link href={category.href} className="group block">
                   <div
@@ -204,7 +137,7 @@ export default function Categories() {
                     >
                       <Image
                         src={category.image}
-                        alt={category.title}
+                        alt={`عکاسی ${category.title}`}
                         fill
                         sizes="(max-width: 1024px) 50vw, 24vw"
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
@@ -227,7 +160,7 @@ export default function Categories() {
                     />
                   </div>
                 </Link>
-              </motion.div>
+              </Reveal>
             );
           })}
         </div>

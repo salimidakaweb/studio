@@ -88,3 +88,54 @@ body {
   border-color: var(--primary);
   background: rgba(var(--primary-rgb), 0.08);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Motion helpers for the SEO-friendly (server-rendered) home page    */
+/* ------------------------------------------------------------------ */
+
+/* Hero text entrance. Pure CSS so the headline shows up without waiting for
+   JavaScript to hydrate (better LCP than a JS-driven opacity:0 start). */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-fade-up {
+  animation: hero-fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Decorative background glows (used via animate-[glow-pulse_...] utilities).
+   Range is set per element with --glow-min / --glow-max. */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: var(--glow-min, 0.1);
+  }
+  50% {
+    opacity: var(--glow-max, 0.3);
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.08;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.16;
+    scale: 1.15;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-up {
+    animation: none;
+  }
+}

@@ -1,7 +1,10 @@
-"use client";
-
-import { motion } from "motion/react";
+import Image from "next/image";
 import Link from "next/link";
+import Reveal from "@/components/Ui/Reveal";
+
+// Server component. Only <Reveal /> (scroll fade-in) is client-side.
+// Images now use next/image (was a raw <img> via motion.img) and the hover
+// zoom is pure CSS.
 
 const portfolioItems = [
   {
@@ -37,13 +40,9 @@ export default function Portfolio() {
       className="flex h-[670px] items-center overflow-hidden bg-[#171512] text-white"
     >
       <div className="mx-auto w-full max-w-6xl px-6 lg:px-12">
-
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+        <Reveal
+          y={20}
           className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between"
         >
           <div className="text-right">
@@ -61,21 +60,15 @@ export default function Portfolio() {
           <p className="max-w-xs text-right text-xs leading-6 text-white/50">
             مجموعه‌ای از لحظه‌هایی که با دوربین ما ثبت شده‌اند.
           </p>
-        </motion.div>
+        </Reveal>
 
         {/* Gallery */}
         <div className="grid auto-rows-[110px] grid-cols-2 gap-3 sm:auto-rows-[140px] md:grid-cols-4 md:auto-rows-[150px]">
-
           {portfolioItems.map((item, index) => (
-            <motion.div
+            <Reveal
               key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.15 }}
-              transition={{
-                duration: 0.6,
-                delay: index * 0.08,
-              }}
+              y={30}
+              delay={index * 0.08}
               className={item.className}
             >
               <Link
@@ -83,12 +76,12 @@ export default function Portfolio() {
                 className="group relative block h-full overflow-hidden rounded-sm"
               >
                 {/* Image */}
-                <motion.img
+                <Image
                   src={item.image}
-                  alt={item.title}
-                  className="h-full w-full object-cover"
-                  whileHover={{ scale: 1.06 }}
-                  transition={{ duration: 0.8 }}
+                  alt={`نمونه‌کار عکاسی ${item.title}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.06]"
                 />
 
                 {/* Overlay */}
@@ -101,7 +94,10 @@ export default function Portfolio() {
                       {item.category}
                     </span>
 
-                    <span className="text-xs text-white/70 transition-transform duration-300 group-hover:-translate-x-1">
+                    <span
+                      aria-hidden="true"
+                      className="text-xs text-white/70 transition-transform duration-300 group-hover:-translate-x-1"
+                    >
                       ↙
                     </span>
                   </div>
@@ -113,30 +109,26 @@ export default function Portfolio() {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </Reveal>
           ))}
-
         </div>
 
         {/* Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mt-6 flex justify-center"
-        >
+        <Reveal y={15} className="mt-6 flex justify-center">
           <Link
             href="/portfolio"
             className="group flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs text-white transition-all duration-300 hover:border-[var(--primary)] hover:text-[var(--primary-light)]"
           >
             <span>مشاهده تمام نمونه‌کارها</span>
 
-            <span className="transition-transform duration-300 group-hover:-translate-x-2">
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-300 group-hover:-translate-x-2"
+            >
               ←
             </span>
           </Link>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

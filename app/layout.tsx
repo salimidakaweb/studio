@@ -12,7 +12,12 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+// TODO: put the real production domain here (or set NEXT_PUBLIC_SITE_URL).
+// Without metadataBase, canonical / Open Graph URLs are not turned into absolute URLs.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://atelier-bakhtiari.ir";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "آتلیه بختیاری",
   description: "آتلیه تخصصی عکاسی کودک و ثبت لحظه‌های ماندگار",
 };

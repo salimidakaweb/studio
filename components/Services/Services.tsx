@@ -1,8 +1,8 @@
-"use client";
-
-import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+import Reveal from "@/components/Ui/Reveal";
+
+// Server component. Only <Reveal /> (scroll fade-in) is client-side.
 
 // Sample photos from /public/images/slides — no external hosts, so the
 // section loads fine on Iranian networks. Swap in real shots per service later.
@@ -41,11 +41,8 @@ export default function Services() {
     >
       <div className="mx-auto w-full max-w-6xl px-6 lg:px-12">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+        <Reveal
+          y={16}
           className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-12"
         >
           <div className="text-right">
@@ -63,18 +60,12 @@ export default function Services() {
           <p className="max-w-sm text-right text-[13px] leading-6 text-white/50">
             از عروسی تا پرتره و کودک؛ داستان شما را با تصویر روایت می‌کنیم.
           </p>
-        </motion.div>
+        </Reveal>
 
         {/* Services row */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
           {services.map((service, index) => (
-            <motion.div
-              key={service.href}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: index * 0.08 }}
-            >
+            <Reveal key={service.href} y={24} delay={index * 0.08}>
               <Link
                 href={service.href}
                 className="group relative block aspect-[4/5] overflow-hidden rounded-lg outline-none ring-[var(--primary-light)] focus-visible:ring-2 sm:aspect-auto sm:h-[280px] lg:h-[420px]"
@@ -96,8 +87,9 @@ export default function Services() {
                     {service.title}
                   </h3>
 
-                  {/* Description only on desktop: opens on hover/focus. Hidden on small screens where cards are too narrow to read it. */}
-                  <div className="hidden transition-[grid-template-rows] duration-500 ease-out lg:grid lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] lg:group-focus-visible:grid-rows-[1fr]">
+                  {/* Description: opens on hover/focus on desktop. On small screens the cards are too narrow to show it, so it is visually hidden
+                      (sr-only) instead of display:none — the text stays in the DOM for screen readers and crawlers. */}
+                  <div className="max-lg:sr-only lg:grid lg:grid-rows-[0fr] lg:transition-[grid-template-rows] lg:duration-500 lg:ease-out lg:group-hover:grid-rows-[1fr] lg:group-focus-visible:grid-rows-[1fr]">
                     <p className="overflow-hidden text-xs leading-6 text-white/75">
                       <span className="mt-2 block">{service.description}</span>
                     </p>
@@ -114,7 +106,7 @@ export default function Services() {
                   </span>
                 </div>
               </Link>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>
