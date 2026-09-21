@@ -8,11 +8,19 @@ import { AnimatePresence, motion } from "motion/react";
 
 const navItems = [
   { title: "خانه", href: "/" },
-  { title: "خدمات", href: "/#services" },
+  { title: "آتلیه کودک", href: "/#services", megaMenu: true },
   { title: "گالری", href: "/#portfolio" },
   { title: "وبلاگ", href: "/blog" },
   { title: "درباره ما", href: "/about" },
   { title: "تماس با ما", href: "/contact" },
+];
+
+const childStudioItems = [
+  { title: "آتلیه تولد کودک", href: "/services/birthday" },
+  { title: "آتلیه فضای باز کودک", href: "/services/outdoor" },
+  { title: "آتلیه بارداری", href: "/services/pregnancy" },
+  { title: "آتلیه عکس در منزل کودک", href: "/services/home" },
+  { title: "آتلیه فانتزی کودک", href: "/services/fantasy" },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -25,6 +33,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
+  const [mobileMegaOpen, setMobileMegaOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -162,7 +172,85 @@ export default function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden items-center gap-7 lg:flex">
               {navItems.map((item) => {
-                const active = isActivePath(pathname, item.href);
+                const active = item.megaMenu
+                  ? pathname.startsWith("/services")
+                  : isActivePath(pathname, item.href);
+
+                if (item.megaMenu) {
+                  return (
+                    <div
+                      key={item.href}
+                      className="relative"
+                      onMouseEnter={() => setMegaOpen(true)}
+                      onMouseLeave={() => setMegaOpen(false)}
+                    >
+                      <Link
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        aria-expanded={megaOpen}
+                        className={`group relative flex items-center gap-1.5 py-2 text-sm font-medium transition-colors duration-300 ${
+                          active || megaOpen
+                            ? "text-[var(--primary)]"
+                            : "text-black/70 hover:text-[var(--primary)]"
+                        }`}
+                      >
+                        {item.title}
+
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`transition-transform duration-300 ${
+                            megaOpen ? "rotate-180" : ""
+                          }`}
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+
+                        <span
+                          className={`absolute -bottom-0.5 right-0 h-[2px] bg-[var(--primary)] transition-all duration-300 ease-out ${
+                            active ? "w-full" : "w-0 group-hover:w-full"
+                          }`}
+                        />
+                      </Link>
+
+                      {/* Mega menu panel */}
+                      <AnimatePresence>
+                        {megaOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                            className="absolute right-1/2 top-full z-50 w-72 translate-x-1/2 pt-4"
+                          >
+                            <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_20px_50px_-12px_rgba(20,18,15,0.25)]">
+                              <div className="flex flex-col p-2">
+                                {childStudioItems.map((child) => (
+                                  <Link
+                                    key={child.href}
+                                    href={child.href}
+                                    className="group/item flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-[#171512] transition-all duration-300 hover:bg-[var(--primary)] hover:text-white"
+                                  >
+                                    {child.title}
+                                    <span className="text-black/20 transition-all duration-300 group-hover/item:-translate-x-1 group-hover/item:text-white">
+                                      ←
+                                    </span>
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
 
                 return (
                   <Link
@@ -273,7 +361,80 @@ export default function Navbar() {
               >
                 <div className="flex flex-col px-6 py-6">
                   {navItems.map((item, index) => {
-                    const active = isActivePath(pathname, item.href);
+                    const active = item.megaMenu
+                      ? pathname.startsWith("/services")
+                      : isActivePath(pathname, item.href);
+
+                    if (item.megaMenu) {
+                      return (
+                        <motion.div
+                          key={item.href}
+                          initial={{ opacity: 0, x: 30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.06, duration: 0.3 }}
+                          className="border-b border-black/10"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setMobileMegaOpen(!mobileMegaOpen)}
+                            aria-expanded={mobileMegaOpen}
+                            className={`flex w-full items-center justify-between py-4 text-base font-medium transition-colors ${
+                              active || mobileMegaOpen
+                                ? "text-[var(--primary)]"
+                                : "text-[#171512]"
+                            }`}
+                          >
+                            {item.title}
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`transition-transform duration-300 ${
+                                mobileMegaOpen ? "rotate-180" : ""
+                              }`}
+                            >
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </button>
+
+                          <AnimatePresence>
+                            {mobileMegaOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="flex flex-col gap-1 pb-3">
+                                  {childStudioItems.map((child) => (
+                                    <Link
+                                      key={child.href}
+                                      href={child.href}
+                                      onClick={() => {
+                                        setIsOpen(false);
+                                        setMobileMegaOpen(false);
+                                      }}
+                                      className="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-black/70 transition-all duration-300 hover:bg-[var(--primary)] hover:text-white"
+                                    >
+                                      {child.title}
+                                      <span className="text-black/20 transition-all duration-300 group-hover:-translate-x-1 group-hover:text-white">
+                                        ←
+                                      </span>
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      );
+                    }
 
                     return (
                       <motion.div

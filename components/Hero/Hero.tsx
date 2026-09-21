@@ -43,7 +43,7 @@ export default function Hero() {
         <HeroCamera />
 
         <div className="hero-fade-up w-full max-w-xl text-center lg:text-right">
-          <span className="text-sm tracking-[0.3em] text-[var(--primary)]">
+          <span className="text-sm tracking-[0.05em] text-[var(--primary)] md:tracking-[0.3em]">
             آتلیه بختیاری
           </span>
 
