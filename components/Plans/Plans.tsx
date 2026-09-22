@@ -114,7 +114,7 @@ function PlanCard({
           شروع قیمت
         </span>
 
-        <div className="mt-1 flex items-baseline justify-end gap-2">
+        <div className="mt-1 flex items-baseline gap-2">
           <span className="text-3xl font-light tracking-tight">
             {plan.price}
           </span>
@@ -130,7 +130,7 @@ function PlanCard({
       </div>
 
       {/* Features */}
-      <ul className="relative z-10 mt-5 flex-1 space-y-2.5">
+      <ul className="relative z-10 mt-5 flex-1 space-y-2.5 text-right ">
         {plan.features.map((feature, featureIndex) => (
           <PlanFeature
             key={feature}
@@ -206,7 +206,7 @@ export default function Plans() {
           </h2>
         </Reveal>
 
-        <PlansCarousel labels={plans.map((plan) => plan.title)}>
+          <PlansCarousel labels={plans.map((plan) => plan.title)}>
           {plans.map((plan, index) => (
             <PlanCard key={plan.name} plan={plan} index={index} />
           ))}

@@ -59,17 +59,15 @@ export function PlanCardShell({
       {/* Glow */}
       <div
         aria-hidden="true"
-        className={`absolute -inset-px rounded-sm opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 ${
-          featured ? "bg-[var(--primary)]/30" : "bg-white/20"
-        }`}
+        className={`absolute -inset-px rounded-sm opacity-0 blur-xl transition-opacity duration-700 group-hover:opacity-100 ${featured ? "bg-[var(--primary)]/30" : "bg-white/20"
+          }`}
       />
 
       <div
-        className={`relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-sm border p-5 transition-all duration-700 lg:p-6 ${
-          featured
-            ? "border-[var(--primary-dark)]/30 bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] text-white shadow-[0_20px_45px_-18px_rgba(var(--primary-rgb),0.5)]"
-            : "border-black/10 bg-white text-[#171512] shadow-[0_10px_30px_-18px_rgba(20,18,15,0.25)]"
-        }`}
+        className={`relative flex h-full min-h-[520px] flex-col overflow-hidden rounded-sm border p-5 transition-all duration-700 lg:p-6 ${featured
+          ? "border-[var(--primary-dark)]/30 bg-gradient-to-br from-[var(--primary-dark)] via-[var(--primary)] to-[var(--primary-dark)] text-white shadow-[0_20px_45px_-18px_rgba(var(--primary-rgb),0.5)]"
+          : "border-black/10 bg-white text-[#171512] shadow-[0_10px_30px_-18px_rgba(20,18,15,0.25)]"
+          }`}
       >
         {/* Mouse Spotlight */}
         <motion.div
@@ -106,9 +104,8 @@ export function PlanNumber({
       whileInView={{ y: 0, opacity: 1 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.15 + 0.4, duration: 0.6 }}
-      className={`absolute -bottom-5 -left-2 text-[90px] font-light leading-none transition-transform duration-1000 group-hover:-translate-y-3 ${
-        featured ? "text-white/10" : "text-black/[0.04]"
-      }`}
+      className={`absolute -bottom-5 -left-2 text-[90px] font-light leading-none transition-transform duration-1000 group-hover:-translate-y-3 ${featured ? "text-white/10" : "text-black/[0.04]"
+        }`}
     >
       0{index + 1}
     </motion.span>
@@ -133,18 +130,17 @@ export function PlanFeature({
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.15 + featureIndex * 0.08 + 0.5 }}
-      className={`flex items-center justify-end gap-2.5 text-[13px] ${
-        featured ? "text-white/85" : "text-black/65"
-      }`}
+      className={`flex items-center gap-2.5 text-[13px] ${featured ? "text-white/85" : "text-black/65"
+        }`}
     >
-      <span>{children}</span>
 
       <span
         aria-hidden="true"
-        className={`h-1 w-1 rounded-full transition-transform duration-300 group-hover:scale-150 ${
-          featured ? "bg-white/70" : "bg-[var(--primary)]/60"
-        }`}
+        className={`h-1 w-1 rounded-full transition-transform duration-300 group-hover:scale-150 ${featured ? "bg-white/70" : "bg-[var(--primary)]/60"
+          }`}
       />
+      <span>{children}</span>
+
     </motion.li>
   );
 }
@@ -160,9 +156,8 @@ export function PlanBottomLine({
   return (
     <motion.div
       aria-hidden="true"
-      className={`absolute bottom-0 right-0 h-[2px] w-full origin-right ${
-        featured ? "bg-white/30" : "bg-[var(--primary)]/30"
-      }`}
+      className={`absolute bottom-0 right-0 h-[2px] w-full origin-right ${featured ? "bg-white/30" : "bg-[var(--primary)]/30"
+        }`}
       initial={{ scaleX: 0 }}
       whileInView={{ scaleX: 1 }}
       viewport={{ once: true }}
@@ -257,11 +252,10 @@ export function PlansCarousel({
             type="button"
             onClick={() => goToCard(i)}
             aria-label={`نمایش ${label}`}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === active
-                ? "w-5 bg-[var(--primary)]"
-                : "w-1.5 bg-black/15 hover:bg-black/25"
-            }`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${i === active
+              ? "w-5 bg-[var(--primary)]"
+              : "w-1.5 bg-black/15 hover:bg-black/25"
+              }`}
           />
         ))}
       </div>
