@@ -17,10 +17,10 @@ const navItems = [
 
 const childStudioItems = [
   { title: "آتلیه تولد کودک", href: "/services/birthday" },
-  { title: "آتلیه فضای باز کودک", href: "/services/outdoor" },
+  { title: "آتلیه فضای باز کودک", href: "/services/outdoor-kids" },
   { title: "آتلیه بارداری", href: "/services/pregnancy" },
-  { title: "آتلیه عکس در منزل کودک", href: "/services/home" },
-  { title: "آتلیه فانتزی کودک", href: "/services/fantasy" },
+  { title: "آتلیه عکس در منزل کودک", href: "/services/home-kids" },
+  { title: "آتلیه فانتزی کودک", href: "/services/fantasy-kids" },
 ];
 
 function isActivePath(pathname: string, href: string) {
