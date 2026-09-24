@@ -17,11 +17,14 @@ export default function ServicePage({
 }: ServicePageProps) {
   return (
     <main>
-      <ServiceHero data={service.hero} />
+      <ServiceHero data={service.hero} category={service.category} />
       <ServiceTheme data={service.theme} />
       <ServiceAddOns data={service.addOns} />
       <ServiceChecklist data={service.checklist} />
-      <ServiceOutdoor data={service.outdoor} />
+      <ServiceOutdoor
+        data={service.outdoor}
+        bookingHref={`/${service.category ?? "kids"}#booking`}
+      />
       <ServiceWorks data={service.works} />
       <ServiceSummary data={service.summary} />
       <ServiceArticles data={service.articles} />

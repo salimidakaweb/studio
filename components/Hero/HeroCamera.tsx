@@ -14,13 +14,9 @@ import { useRef, useState, useEffect } from "react";
 // slideshow on its LCD screen. It contains no headings or copy (nothing for SEO).
 
 // Photos shown one-by-one on the camera's LCD screen, as if the photographer
-// is reviewing shots they just took.
-// Replace these with your own studio photos in /public/images/slides/
-const SLIDES = [
-  "/images/slides/sample-1.jpg",
-  "/images/slides/sample-2.jpg",
-  "/images/slides/sample-3.jpg",
-];
+// is reviewing shots they just took. They come in as a prop (per page), with
+// their own alt text, so kids/wedding each show their own work.
+type Slide = { image: string; alt: string };
 
 // LCD screen position as a percentage of the camera image (1400x1000 source).
 // Measured directly from the provided photo.
@@ -33,16 +29,16 @@ const SCREEN = {
 
 const SLIDE_DURATION = 4500;
 
-export default function HeroCamera() {
+export default function HeroCamera({ slides }: { slides: Slide[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (SLIDES.length < 2) return;
+    if (slides.length < 2) return;
     const id = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % SLIDES.length);
+      setActiveIndex((i) => (i + 1) % slides.length);
     }, SLIDE_DURATION);
     return () => clearInterval(id);
-  }, []);
+  }, [slides.length]);
 
   // Mouse position (raw, -0.5..0.5) relative to the camera wrapper
   const mouseX = useMotionValue(0);
@@ -179,8 +175,8 @@ export default function HeroCamera() {
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Image
-                  src={SLIDES[activeIndex]}
-                  alt="نمونه‌کار عکاسی آتلیه بختیاری"
+                  src={slides[activeIndex].image}
+                  alt={slides[activeIndex].alt}
                   fill
                   sizes="(max-width: 768px) 60vw, 34vw"
                   priority

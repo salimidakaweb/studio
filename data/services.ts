@@ -1,3 +1,5 @@
+import { weddingServices } from "./wedding-services";
+
 type AddOnIcon = "video" | "cake" | "calendar";
 
 type HeroData = {
@@ -89,6 +91,8 @@ type ArticlesData = {
 
 export type ServiceData = {
     slug: string;
+    /** Parent category page (used for the breadcrumb + back links). */
+    category?: "kids" | "wedding";
     seo: {
         title: string;
         description: string;
@@ -103,9 +107,10 @@ export type ServiceData = {
     articles: ArticlesData;
 };
 
-export const services: Record<string, ServiceData> = {
+const kidsServices: Record<string, ServiceData> = {
     birthday: {
         slug: "birthday",
+        category: "kids",
         seo: {
             title: "آتلیه تولد کودک | عکاسی حرفه‌ای تولد کودک",
             description:
@@ -270,6 +275,7 @@ export const services: Record<string, ServiceData> = {
     },
     "outdoor-kids": {
         slug: "outdoor-kids",
+        category: "kids",
 
         seo: {
             title: "آتلیه فضای باز کودک | عکاسی کودک در فضای باز",
@@ -430,6 +436,7 @@ export const services: Record<string, ServiceData> = {
     },
     pregnancy: {
         slug: "pregnancy",
+        category: "kids",
         seo: {
             title: "آتلیه بارداری | عکاسی بارداری حرفه‌ای",
             description:
@@ -589,6 +596,7 @@ export const services: Record<string, ServiceData> = {
     },
     "home-kids": {
         slug: "home-kids",
+        category: "kids",
         seo: {
             title: "آتلیه عکس در منزل کودک | عکاسی کودک در خانه",
             description:
@@ -748,6 +756,7 @@ export const services: Record<string, ServiceData> = {
     },
     "fantasy-kids": {
         slug: "fantasy-kids",
+        category: "kids",
         seo: {
             title: "آتلیه فانتزی کودک | بهترین آتلیه عکاسی فانتزی",
             description:
@@ -905,4 +914,14 @@ export const services: Record<string, ServiceData> = {
             ],
         },
     },
+};
+
+/**
+ * All sub-services, keyed by slug (served by /services/[slug]).
+ * Kids services live in this file, wedding services in ./wedding-services.
+ * Slugs must stay unique across both groups.
+ */
+export const services: Record<string, ServiceData> = {
+    ...kidsServices,
+    ...weddingServices,
 };

@@ -14,12 +14,22 @@ type ServiceHeroData = {
 
 type ServiceHeroProps = {
   data: ServiceHeroData;
+  /** Parent category page; drives the breadcrumb label + link. */
+  category?: "kids" | "wedding";
 };
+
+// Parent page for each category (real, indexable URLs — good internal linking).
+const CATEGORY_CRUMB = {
+  kids: { label: "آتلیه کودک", href: "/kids" },
+  wedding: { label: "آتلیه عروس و داماد", href: "/wedding" },
+} as const;
 
 const PHONE_DISPLAY = "۰۹۱۲ ۲۱۵ ۶۵۸۷";
 const PHONE_HREF = "tel:+989122156587";
 
-export default function ServiceHero({ data }: ServiceHeroProps) {
+export default function ServiceHero({ data, category }: ServiceHeroProps) {
+  const crumb = category ? CATEGORY_CRUMB[category] : CATEGORY_CRUMB.kids;
+
   return (
     <section className="relative overflow-hidden bg-[#f5f2ec] pb-14 pt-8 lg:pb-20 lg:pt-12">
       <div
@@ -34,10 +44,10 @@ export default function ServiceHero({ data }: ServiceHeroProps) {
           <ol className="flex items-center justify-end gap-2">
             <li>
               <Link
-                href="/#services"
+                href={crumb.href}
                 className="transition-colors hover:text-[var(--primary-dark)]"
               >
-                آتلیه کودک
+                {crumb.label}
               </Link>
             </li>
 
@@ -69,7 +79,7 @@ export default function ServiceHero({ data }: ServiceHeroProps) {
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                href="/#booking"
+                href={`${crumb.href}#booking`}
                 className="btn-primary flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium text-white"
               >
                 رزرو نوبت

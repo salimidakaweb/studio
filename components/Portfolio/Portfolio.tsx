@@ -1,48 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Ui/Reveal";
+import type { CategoryData } from "@/data/categories";
 
 // Server component. Only <Reveal /> (scroll fade-in) is client-side.
 // Images now use next/image (was a raw <img> via motion.img) and the hover
 // zoom is pure CSS.
 
-// Grid is RTL, 4 columns x 2 rows on md+. Columns are numbered 1 (rightmost)
-// to 4 (leftmost) by CSS, so we place each item explicitly instead of
-// relying on source order / auto-flow (which was pushing "خانوادگی" down).
-const portfolioItems = [
-  {
-    title: "عروسی",
-    category: "WEDDING",
-    image: "/images/slides/sample-1.jpg",
-    className: "md:col-start-1 md:row-start-1 md:row-span-2",
-  },
-  {
-    title: "پرتره",
-    category: "PORTRAIT",
-    image: "/images/slides/sample-2.jpg",
-    className: "md:col-start-3 md:row-start-1",
-  },
-  {
-    title: "عقد",
-    category: "CEREMONY",
-    image: "/images/slides/sample-3.jpg",
-    className: "md:col-start-2 md:row-start-1",
-  },
-  {
-    title: "کودک",
-    category: "KIDS",
-    image: "/images/slides/sample-2.jpg",
-    className: "md:col-start-2 md:row-start-2 md:col-span-2",
-  },
-  {
-    title: "خانوادگی",
-    category: "FAMILY",
-    image: "/images/slides/sample-3.jpg",
-    className: "md:col-start-4 md:row-start-1 md:row-span-2",
-  },
-];
+// Grid is RTL, 4 columns x 2 rows on md+. Each item carries its own explicit
+// grid placement (`className`) in the page data, so we never rely on source
+// order / auto-flow. Items come from `data` (kids vs wedding).
 
-export default function Portfolio() {
+export default function Portfolio({
+  data,
+}: {
+  data: CategoryData["portfolio"];
+}) {
+  const portfolioItems = data.items;
+
   return (
     <section
       id="portfolio"
@@ -53,12 +28,12 @@ export default function Portfolio() {
         <Reveal y={20} className="mb-6 text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-light)]">
             <span className="h-px w-6 bg-[var(--primary)]" />
-            SELECTED WORKS
+            {data.eyebrow}
           </span>
 
           <h2 className="mt-2 text-2xl font-light leading-tight sm:text-3xl lg:text-4xl">
-            بعضی لحظه‌ها،
-            <span className="font-medium"> دیدنی‌ترند.</span>
+            {data.title}
+            <span className="font-medium"> {data.titleAccent}</span>
           </h2>
         </Reveal>
 
@@ -72,13 +47,13 @@ export default function Portfolio() {
               className={item.className}
             >
               <Link
-                href={`/portfolio/${item.category.toLowerCase()}`}
+                href={item.href}
                 className="group relative block h-full overflow-hidden rounded-sm"
               >
                 {/* Image */}
                 <Image
                   src={item.image}
-                  alt={`نمونه‌کار عکاسی ${item.title}`}
+                  alt={item.imageAlt}
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
                   className="object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.06]"
@@ -91,7 +66,7 @@ export default function Portfolio() {
                 <div className="absolute inset-0 flex flex-col justify-between p-3 lg:p-4">
                   <div className="flex justify-between">
                     <span className="text-[9px] tracking-[0.25em] text-white/70">
-                      {item.category}
+                      {item.label}
                     </span>
 
                     <span
@@ -116,10 +91,10 @@ export default function Portfolio() {
         {/* Button */}
         <Reveal y={15} className="mt-6 flex justify-center">
           <Link
-            href="/gallery"
+            href={data.galleryHref}
             className="group flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs text-white transition-all duration-300 hover:border-[var(--primary)] hover:text-[var(--primary-light)]"
           >
-            <span>مشاهده تمام نمونه‌کارها</span>
+            <span>{data.galleryLabel}</span>
 
             <span
               aria-hidden="true"

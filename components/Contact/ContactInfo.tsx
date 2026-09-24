@@ -20,7 +20,7 @@ const about = {
 };
 
 const ctaButtons = {
-  primary: { label: "رزرو وقت عکاسی", href: "/booking" },
+  primary: { label: "رزرو وقت عکاسی", href: "/kids#booking" },
   secondary: { label: "تماس مستقیم", href: "tel:+982112345678" },
 };
 

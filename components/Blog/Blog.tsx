@@ -1,45 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import BlogSlider from "./BlogSlider";
+import type { CategoryData } from "@/data/categories";
 
 // Server component: heading, "view all" link and every post card (title,
 // category, date, link) are in the initial HTML. Only the slider mechanics
 // (drag, arrows, dots, autoplay) are client-side, in <BlogSlider />.
 
-const posts = [
-  {
-    title: "چطور برای عکاسی عروسی آماده شویم؟",
-    category: "راهنمای عکاسی",
-    date: "۱۲ شهریور ۱۴۰۵",
-    image: "/images/slides/sample-1.jpg",
-  },
-  {
-    title: "چرا نور مهم‌ترین عنصر در یک عکس حرفه‌ای است؟",
-    category: "آموزش",
-    date: "۰۵ شهریور ۱۴۰۵",
-    image: "/images/slides/sample-2.jpg",
-  },
-  {
-    title: "انتخاب لوکیشن مناسب برای عکاسی فرمالیته",
-    category: "ایده و الهام",
-    date: "۲۸ مرداد ۱۴۰۵",
-    image: "/images/slides/sample-3.jpg",
-  },
-  {
-    title: "راهنمای کامل عکاسی کودک در آتلیه",
-    category: "راهنمای عکاسی",
-    date: "۲۰ مرداد ۱۴۰۵",
-    image: "/images/slides/sample-1.jpg",
-  },
-  {
-    title: "چیدمان و دکور مناسب برای جشن تولد",
-    category: "ایده و الهام",
-    date: "۱۴ مرداد ۱۴۰۵",
-    image: "/images/slides/sample-3.jpg",
-  },
-];
+export default function Blog({ data }: { data: CategoryData["blog"] }) {
+  const posts = data.posts;
 
-export default function Blog() {
   return (
     <section
       id="blog"
@@ -52,18 +22,18 @@ export default function Blog() {
             <div className="text-right">
               <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
                 <span className="h-px w-6 bg-[var(--primary)]" />
-                JOURNAL
+                {data.eyebrow}
               </span>
 
               <h2 className="mt-2 text-2xl font-light leading-tight text-[#171512] sm:text-3xl lg:text-4xl">
-                از دنیای
-                <span className="font-medium"> آتلیه بختیاری.</span>
+                {data.title}
+                <span className="font-medium"> {data.titleAccent}</span>
               </h2>
             </div>
           }
           viewAll={
             <Link
-              href="/blog"
+              href={data.viewAllHref}
               className="group flex items-center justify-end gap-2 text-xs text-black/55 transition-colors duration-300 hover:text-[var(--primary-dark)]"
             >
               <span
@@ -72,7 +42,7 @@ export default function Blog() {
               >
                 ←
               </span>
-              مشاهده همه مقالات
+              {data.viewAllLabel}
             </Link>
           }
         >
@@ -82,9 +52,9 @@ export default function Blog() {
               data-card
               className="w-[78%] flex-shrink-0 sm:w-[46%] lg:w-[31.5%]"
             >
-              {/* TODO: link each card to its own /blog/[slug] page once the
-                  posts come from lib/Blog (unique URLs = better internal linking). */}
-              <Link href="/blog" draggable={false} className="group block">
+              {/* TODO: point each `href` at its own /blog/[slug] page once posts
+                  come from lib/Blog (unique URLs = better internal linking). */}
+              <Link href={post.href} draggable={false} className="group block">
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden rounded-sm">
                   <Image

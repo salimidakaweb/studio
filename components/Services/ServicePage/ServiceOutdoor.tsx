@@ -13,10 +13,13 @@ type ServiceOutdoorData = {
 
 type ServiceOutdoorProps = {
   data: ServiceOutdoorData;
+  /** Booking form lives on the parent category page. */
+  bookingHref?: string;
 };
 
 export default function ServiceOutdoor({
   data,
+  bookingHref = "/kids#booking",
 }: ServiceOutdoorProps) {
   return (
     <section className="relative overflow-hidden py-14 lg:py-20">
@@ -52,7 +55,7 @@ export default function ServiceOutdoor({
             </div>
 
             <Link
-              href="/#booking"
+              href={bookingHref}
               className="btn-primary mt-7 inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-medium text-white"
             >
               رزرو نوبت

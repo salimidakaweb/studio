@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Ui/Reveal";
+import type { CategoryData } from "@/data/categories";
 
 // Server component. Only <Reveal /> (scroll slide-in) is client-side.
 
-export default function About() {
+export default function About({ data }: { data: CategoryData["about"] }) {
   return (
     <section
       id="about"
@@ -26,8 +27,8 @@ export default function About() {
         >
           <div className="group relative aspect-[4/5] overflow-hidden rounded-sm shadow-[0_16px_36px_-16px_rgba(20,18,15,0.3)]">
             <Image
-              src="/images/slides/sample-1.jpg"
-              alt="نمایی از آتلیه عکاسی بختیاری"
+              src={data.image}
+              alt={data.imageAlt}
               fill
               sizes="320px"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
@@ -55,46 +56,39 @@ export default function About() {
         <Reveal x={40} y={0} delay={0.15} className="text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
             <span className="h-px w-6 bg-[var(--primary)]" />
-            ABOUT ATELIER
+            {data.eyebrow}
           </span>
 
           <h2 className="mt-3 text-2xl font-light leading-[1.3] text-[#171512] sm:text-3xl lg:text-4xl">
-            ما فقط عکس
-            <span className="font-medium"> ثبت نمی‌کنیم.</span>
+            {data.title}
+            <span className="font-medium"> {data.titleAccent}</span>
           </h2>
 
           <div className="mt-4 max-w-md mr-auto space-y-3 text-[13px] leading-7 text-black/60 sm:text-sm">
-            <p>
-              در آتلیه بختیاری، هر تصویر شروع یک داستان است؛
-              داستانی از آدم‌ها و لحظه‌هایی که قرار نیست دوباره تکرار شوند.
-            </p>
+            {data.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
 
           {/* Stats */}
           <div className="mt-6 flex justify-end gap-8 border-t border-black/10 pt-5">
-            <div className="text-right">
-              <div className="text-2xl font-light text-[var(--primary-dark)]">
-                15+
-              </div>
+            {data.stats.map((stat) => (
+              <div key={stat.label} className="text-right">
+                <div className="text-2xl font-light text-[var(--primary-dark)]">
+                  {stat.value}
+                </div>
 
-              <div className="mt-1 text-[11px] text-black/40">سال تجربه</div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-2xl font-light text-[var(--primary-dark)]">
-                2K+
+                <div className="mt-1 text-[11px] text-black/40">
+                  {stat.label}
+                </div>
               </div>
-
-              <div className="mt-1 text-[11px] text-black/40">
-                خاطره ثبت‌شده
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Button */}
           <div className="mt-6 flex justify-end">
             <Link
-              href="/about"
+              href={data.cta.href}
               className="group flex items-center gap-3 border-b border-[var(--primary)] pb-2 text-xs font-medium text-[#171512] transition-colors duration-300 hover:text-[var(--primary-dark)]"
             >
               <span
@@ -103,7 +97,7 @@ export default function About() {
               >
                 ←
               </span>
-              بیشتر درباره ما
+              {data.cta.label}
             </Link>
           </div>
         </Reveal>

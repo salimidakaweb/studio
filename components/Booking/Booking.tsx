@@ -1,10 +1,15 @@
 import Reveal from "@/components/Ui/Reveal";
 import BookingForm from "./BookingForm";
+import type { CategoryData } from "@/data/categories";
 
 // Server component: heading, intro copy and contact info are in the initial
-// HTML. Client leaves: <Reveal /> and <BookingForm /> (needs state).
+// HTML. Client leaves: <Reveal /> and <BookingForm services={data.serviceOptions} /> (needs state).
 
-export default function Booking() {
+export default function Booking({
+  data,
+}: {
+  data: CategoryData["booking"];
+}) {
   return (
     <section
       id="booking"
@@ -20,17 +25,16 @@ export default function Booking() {
           <div>
             <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-light)]">
               <span className="h-px w-6 bg-[var(--primary)]" />
-              BOOK A SESSION
+              {data.eyebrow}
             </span>
 
             <h2 className="mt-3 text-2xl font-light leading-[1.3] sm:text-3xl lg:text-4xl">
-              لحظه‌ی شما،
-              <span className="font-medium"> از همین‌جا شروع می‌شود.</span>
+              {data.title}
+              <span className="font-medium"> {data.titleAccent}</span>
             </h2>
 
             <p className="mt-4 max-w-sm mr-auto text-[13px] leading-7 text-white/45">
-              برای رزرو وقت یا دریافت اطلاعات بیشتر، فرم روبه‌رو را
-              تکمیل کنید تا در اولین فرصت با شما تماس بگیریم.
+              {data.description}
             </p>
           </div>
 
@@ -67,7 +71,7 @@ export default function Booking() {
 
         {/* Form */}
         <Reveal x={40} y={0} delay={0.15}>
-          <BookingForm />
+          <BookingForm services={data.serviceOptions} />
         </Reveal>
       </div>
     </section>

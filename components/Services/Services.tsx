@@ -1,39 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "@/components/Ui/Reveal";
+import type { CategoryData } from "@/data/categories";
 
 // Server component. Only <Reveal /> (scroll fade-in) is client-side.
 
-// Sample photos from /public/images/slides — no external hosts, so the
-// section loads fine on Iranian networks. Swap in real shots per service later.
-const services = [
-  {
-    title: "عکاسی عروسی",
-    description: "ثبت لحظه‌های روزی که همیشه در خاطرتان می‌ماند.",
-    image: "/images/slides/sample-1.jpg",
-    href: "/services/wedding",
-  },
-  {
-    title: "فیلم‌برداری",
-    description: "روایت سینمایی لحظه‌های شما با نگاهی متفاوت.",
-    image: "/images/slides/sample-2.jpg",
-    href: "/services/filming",
-  },
-  {
-    title: "عکاسی کودک",
-    description: "شیرین‌ترین لحظه‌های کودکی، در فضایی صمیمی.",
-    image: "/images/slides/sample-3.jpg",
-    href: "/services/kids",
-  },
-  {
-    title: "عکاسی پرتره",
-    description: "تصویری ساده، حرفه‌ای و ماندگار از شما.",
-    image: "/images/slides/sample-1.jpg",
-    href: "/services/portrait",
-  },
-];
+// Cards (title, description, image, link) come from `data` — kids and wedding
+// pages share this component. Number of cards is flexible (4 or 5 per page).
 
-export default function Services() {
+export default function Services({
+  data,
+}: {
+  data: CategoryData["services"];
+}) {
+  const services = data.items;
+
   return (
     <section
       id="services"
@@ -48,22 +29,26 @@ export default function Services() {
           <div className="text-right">
             <span className="inline-flex items-center gap-3 text-[11px] tracking-[0.3em] text-[var(--primary-light)]">
               <span className="h-px w-6 bg-[var(--primary)]" />
-              OUR SERVICES
+              {data.eyebrow}
             </span>
 
             <h2 className="mt-3 text-2xl font-light leading-snug sm:text-3xl lg:text-4xl">
-              هر لحظه،{" "}
-              <span className="font-medium">یک روایت.</span>
+              {data.title}{" "}
+              <span className="font-medium">{data.titleAccent}</span>
             </h2>
           </div>
 
           <p className="max-w-sm text-right text-[13px] leading-6 text-white/50">
-            از عروسی تا پرتره و کودک؛ داستان شما را با تصویر روایت می‌کنیم.
+            {data.description}
           </p>
         </Reveal>
 
         {/* Services row */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
+        <div
+          className={`grid grid-cols-2 gap-3 lg:gap-4 ${
+            services.length >= 5 ? "sm:grid-cols-3 lg:grid-cols-5" : "sm:grid-cols-4"
+          }`}
+        >
           {services.map((service, index) => (
             <Reveal key={service.href} y={24} delay={index * 0.08}>
               <Link
@@ -72,7 +57,7 @@ export default function Services() {
               >
                 <Image
                   src={service.image}
-                  alt={service.title}
+                  alt={service.imageAlt}
                   fill
                   sizes="(max-width: 1024px) 50vw, 25vw"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"

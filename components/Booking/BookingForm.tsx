@@ -6,15 +6,7 @@ import { useState } from "react";
 // Client-only leaf: the form needs state (selected service + submitted flag).
 // The section heading / intro copy lives in Booking.tsx (server component).
 
-const services = [
-  "عکاسی عروسی",
-  "فیلم‌برداری",
-  "عکاسی کودک",
-  "عکاسی پرتره",
-  "فرمالیته",
-];
-
-export default function BookingForm() {
+export default function BookingForm({ services }: { services: string[] }) {
   const [selectedService, setSelectedService] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -43,6 +35,9 @@ export default function BookingForm() {
       </div>
 
       <div className="space-y-4">
+        {/* The chosen service is posted with the form. */}
+        <input type="hidden" name="service" value={selectedService} />
+
         {/* Name + Phone */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="group">

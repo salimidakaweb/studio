@@ -5,8 +5,9 @@ import HoverLift from "../Ui/HoverLift";
 
 const footerLinks = [
   { title: "خانه", href: "/" },
-  { title: "خدمات", href: "/#services" },
-  { title: "نمونه‌کارها", href: "/#portfolio" },
+  { title: "آتلیه کودک", href: "/kids" },
+  { title: "آتلیه عروسی", href: "/wedding" },
+  { title: "گالری", href: "/gallery" },
   { title: "وبلاگ", href: "/blog" },
   { title: "درباره ما", href: "/about" },
   { title: "تماس با ما", href: "/contact" },
@@ -43,7 +44,7 @@ export default function Footer() {
 
             <MagneticText>
               <Link
-                href="/booking"
+                href="/contact"
                 className="btn-primary group relative flex items-center gap-3 overflow-hidden rounded-full px-8 py-4 text-sm font-medium text-white"
                 style={{ willChange: "transform" }}
               >

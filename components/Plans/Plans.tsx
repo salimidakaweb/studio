@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Reveal from "@/components/Ui/Reveal";
+import type { CategoryData } from "@/data/categories";
 import {
   PlanBottomLine,
   PlanCardShell,
@@ -13,53 +14,13 @@ import {
 // few small entrance animations). The featured badge pulse and the ambient
 // glow are pure CSS.
 
-const plans = [
-  {
-    name: "Essential",
-    title: "پکیج پایه",
-    description: "برای ثبت ساده و زیبا از لحظه‌های خاص شما.",
-    price: "۵",
-    features: [
-      "۲ ساعت عکاسی",
-      "۱ عکاس",
-      "۲۰ عکس ادیت‌شده",
-      "تحویل دیجیتال",
-    ],
-  },
-  {
-    name: "Signature",
-    title: "پکیج ویژه",
-    description: "انتخابی کامل برای کسانی که جزئیات برایشان مهم است.",
-    price: "۱۰",
-    featured: true,
-    features: [
-      "۴ ساعت عکاسی",
-      "۲ عکاس",
-      "۵۰ عکس ادیت‌شده",
-      "آلبوم اختصاصی",
-      "تحویل دیجیتال",
-    ],
-  },
-  {
-    name: "Premium",
-    title: "پکیج کامل",
-    description: "یک تجربه کامل برای ثبت تمام لحظه‌های مهم شما.",
-    price: "۱۸",
-    features: [
-      "پوشش کامل مراسم",
-      "۲ عکاس + فیلمبردار",
-      "۸۰ عکس ادیت‌شده",
-      "آلبوم لوکس",
-      "فیلم سینمایی",
-    ],
-  },
-];
+type Plan = CategoryData["plans"]["items"][number];
 
 function PlanCard({
   plan,
   index,
 }: {
-  plan: (typeof plans)[number];
+  plan: Plan;
   index: number;
 }) {
   const featured = Boolean(plan.featured);
@@ -145,7 +106,7 @@ function PlanCard({
 
       {/* Button */}
       <Link
-        href="/booking"
+        href="#booking"
         className={`group/button relative z-10 mt-6 flex items-center justify-center gap-3 overflow-hidden rounded-full border py-3 text-xs font-medium transition-all duration-500 ${
           featured
             ? "border-white/40 bg-white text-[var(--primary-dark)] shadow-[0_10px_25px_-12px_rgba(0,0,0,0.35)]"
@@ -179,7 +140,9 @@ function PlanCard({
   );
 }
 
-export default function Plans() {
+export default function Plans({ data }: { data: CategoryData["plans"] }) {
+  const plans = data.items;
+
   return (
     <section
       id="plans"
@@ -197,12 +160,12 @@ export default function Plans() {
         <Reveal y={25} className="mb-6 text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
             <span className="h-px w-6 bg-[var(--primary)]" />
-            PACKAGES
+            {data.eyebrow}
           </span>
 
           <h2 className="mt-2 text-2xl font-light leading-tight text-[#171512] sm:text-3xl lg:text-4xl">
-            برای هر لحظه،
-            <span className="font-medium"> یک انتخاب.</span>
+            {data.title}
+            <span className="font-medium"> {data.titleAccent}</span>
           </h2>
         </Reveal>
 
@@ -215,8 +178,7 @@ export default function Plans() {
         {/* Note */}
         <Reveal y={0} delay={0.5}>
           <p className="mt-4 text-right text-[11px] leading-6 text-black/35">
-            * قیمت‌ها نمونه هستند و با توجه به نوع مراسم و خدمات
-            انتخابی قابل تغییر خواهند بود.
+            {data.note}
           </p>
         </Reveal>
       </div>

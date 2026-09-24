@@ -6,22 +6,50 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 
-const navItems = [
+type MegaKey = "kids" | "wedding";
+
+const navItems: {
+  title: string;
+  href: string;
+  mega?: MegaKey;
+}[] = [
   { title: "خانه", href: "/" },
-  { title: "آتلیه کودک", href: "/#services", megaMenu: true },
-  { title: "گالری", href: "/#portfolio" },
+  { title: "آتلیه کودک", href: "/kids", mega: "kids" },
+  { title: "آتلیه عروسی", href: "/wedding", mega: "wedding" },
+  { title: "گالری", href: "/gallery" },
   { title: "وبلاگ", href: "/blog" },
   { title: "درباره ما", href: "/about" },
   { title: "تماس با ما", href: "/contact" },
 ];
 
-const childStudioItems = [
-  { title: "آتلیه تولد کودک", href: "/services/birthday" },
-  { title: "آتلیه فضای باز کودک", href: "/services/outdoor-kids" },
-  { title: "آتلیه بارداری", href: "/services/pregnancy" },
-  { title: "آتلیه عکس در منزل کودک", href: "/services/home-kids" },
-  { title: "آتلیه فانتزی کودک", href: "/services/fantasy-kids" },
-];
+// Sub-services shown in each mega menu (same slugs as data/services.ts).
+const megaItems: Record<MegaKey, { title: string; href: string }[]> = {
+  kids: [
+    { title: "آتلیه تولد کودک", href: "/services/birthday" },
+    { title: "آتلیه فضای باز کودک", href: "/services/outdoor-kids" },
+    { title: "آتلیه بارداری", href: "/services/pregnancy" },
+    { title: "آتلیه عکس در منزل کودک", href: "/services/home-kids" },
+    { title: "آتلیه فانتزی کودک", href: "/services/fantasy-kids" },
+  ],
+  wedding: [
+    { title: "آتلیه عروس و داماد", href: "/services/bride-groom" },
+    { title: "آتلیه عقد", href: "/services/engagement-ceremony" },
+    { title: "عکاسی فرمالیته", href: "/services/formality" },
+    { title: "آتلیه بله‌برون", href: "/services/proposal" },
+  ],
+};
+
+// Which category a pathname belongs to (drives the active state + booking link).
+const wedding = new Set(megaItems.wedding.map((i) => i.href));
+
+function categoryOf(pathname: string): MegaKey | null {
+  if (pathname === "/kids" || pathname.startsWith("/kids/")) return "kids";
+  if (pathname === "/wedding" || pathname.startsWith("/wedding/")) return "wedding";
+  if (pathname.startsWith("/services/")) {
+    return wedding.has(pathname) ? "wedding" : "kids";
+  }
+  return null;
+}
 
 function isActivePath(pathname: string, href: string) {
   if (href.includes("#")) return false;
@@ -33,8 +61,13 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
-  const [mobileMegaOpen, setMobileMegaOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState<MegaKey | null>(null);
+  const [mobileMegaOpen, setMobileMegaOpen] = useState<MegaKey | null>(null);
+
+  const category = categoryOf(pathname);
+  // "Reserve" goes to the booking form of the page the visitor is on. On the
+  // home page and other pages (which have no form) it goes to the kids form.
+  const bookingHref = `/${category ?? "kids"}#booking`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -172,24 +205,26 @@ export default function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden items-center gap-7 lg:flex">
               {navItems.map((item) => {
-                const active = item.megaMenu
-                  ? pathname.startsWith("/services")
+                const active = item.mega
+                  ? category === item.mega
                   : isActivePath(pathname, item.href);
+                const isMegaOpen = item.mega ? megaOpen === item.mega : false;
 
-                if (item.megaMenu) {
+                if (item.mega) {
+                  const key = item.mega;
                   return (
                     <div
                       key={item.href}
                       className="relative"
-                      onMouseEnter={() => setMegaOpen(true)}
-                      onMouseLeave={() => setMegaOpen(false)}
+                      onMouseEnter={() => setMegaOpen(key)}
+                      onMouseLeave={() => setMegaOpen(null)}
                     >
                       <Link
                         href={item.href}
                         aria-current={active ? "page" : undefined}
-                        aria-expanded={megaOpen}
+                        aria-expanded={isMegaOpen}
                         className={`group relative flex items-center gap-1.5 py-2 text-sm font-medium transition-colors duration-300 ${
-                          active || megaOpen
+                          active || isMegaOpen
                             ? "text-[var(--primary)]"
                             : "text-black/70 hover:text-[var(--primary)]"
                         }`}
@@ -206,7 +241,7 @@ export default function Navbar() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           className={`transition-transform duration-300 ${
-                            megaOpen ? "rotate-180" : ""
+                            isMegaOpen ? "rotate-180" : ""
                           }`}
                         >
                           <path d="m6 9 6 6 6-6" />
@@ -221,7 +256,7 @@ export default function Navbar() {
 
                       {/* Mega menu panel */}
                       <AnimatePresence>
-                        {megaOpen && (
+                        {isMegaOpen && (
                           <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -231,7 +266,7 @@ export default function Navbar() {
                           >
                             <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-[0_20px_50px_-12px_rgba(20,18,15,0.25)]">
                               <div className="flex flex-col p-2">
-                                {childStudioItems.map((child) => (
+                                {megaItems[key].map((child) => (
                                   <Link
                                     key={child.href}
                                     href={child.href}
@@ -296,7 +331,7 @@ export default function Navbar() {
 
               {/* Booking button */}
               <Link
-                href="/#booking"
+                href={bookingHref}
                 className="btn-primary flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-white"
               >
                 <svg
@@ -361,11 +396,14 @@ export default function Navbar() {
               >
                 <div className="flex flex-col px-6 py-6">
                   {navItems.map((item, index) => {
-                    const active = item.megaMenu
-                      ? pathname.startsWith("/services")
+                    const active = item.mega
+                      ? category === item.mega
                       : isActivePath(pathname, item.href);
 
-                    if (item.megaMenu) {
+                    if (item.mega) {
+                      const key = item.mega;
+                      const isOpenMobile = mobileMegaOpen === key;
+
                       return (
                         <motion.div
                           key={item.href}
@@ -376,10 +414,12 @@ export default function Navbar() {
                         >
                           <button
                             type="button"
-                            onClick={() => setMobileMegaOpen(!mobileMegaOpen)}
-                            aria-expanded={mobileMegaOpen}
+                            onClick={() =>
+                              setMobileMegaOpen(isOpenMobile ? null : key)
+                            }
+                            aria-expanded={isOpenMobile}
                             className={`flex w-full items-center justify-between py-4 text-base font-medium transition-colors ${
-                              active || mobileMegaOpen
+                              active || isOpenMobile
                                 ? "text-[var(--primary)]"
                                 : "text-[#171512]"
                             }`}
@@ -395,7 +435,7 @@ export default function Navbar() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               className={`transition-transform duration-300 ${
-                                mobileMegaOpen ? "rotate-180" : ""
+                                isOpenMobile ? "rotate-180" : ""
                               }`}
                             >
                               <path d="m6 9 6 6 6-6" />
@@ -403,7 +443,7 @@ export default function Navbar() {
                           </button>
 
                           <AnimatePresence>
-                            {mobileMegaOpen && (
+                            {isOpenMobile && (
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
@@ -412,13 +452,24 @@ export default function Navbar() {
                                 className="overflow-hidden"
                               >
                                 <div className="flex flex-col gap-1 pb-3">
-                                  {childStudioItems.map((child) => (
+                                  <Link
+                                    href={item.href}
+                                    onClick={() => {
+                                      setIsOpen(false);
+                                      setMobileMegaOpen(null);
+                                    }}
+                                    className="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-[var(--primary)] transition-all duration-300 hover:bg-[var(--primary)] hover:text-white"
+                                  >
+                                    {`صفحه ${item.title}`}
+                                    <span aria-hidden="true">←</span>
+                                  </Link>
+                                  {megaItems[key].map((child) => (
                                     <Link
                                       key={child.href}
                                       href={child.href}
                                       onClick={() => {
                                         setIsOpen(false);
-                                        setMobileMegaOpen(false);
+                                        setMobileMegaOpen(null);
                                       }}
                                       className="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-black/70 transition-all duration-300 hover:bg-[var(--primary)] hover:text-white"
                                     >
@@ -478,7 +529,7 @@ export default function Navbar() {
                   </a>
 
                   <Link
-                    href="/#booking"
+                    href={bookingHref}
                     onClick={() => setIsOpen(false)}
                     className="btn-primary mt-3 rounded-full py-4 text-center text-sm font-medium text-white"
                   >

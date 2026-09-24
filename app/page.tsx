@@ -1,39 +1,37 @@
 import type { Metadata } from "next";
-import Hero from "@/components/Hero/Hero";
-import Categories from "@/components/Categories/Categories";
-import Services from "@/components/Services/Services";
-import About from "@/components/About/About";
-import Portfolio from "@/components/Portfolio/Portfolio";
-import Plans from "@/components/Plans/Plans";
-import Booking from "@/components/Booking/Booking";
+import HomeSlider from "@/components/Home/HomeSlider";
+import HomeCategories from "@/components/Home/HomeCategories";
+import HomeAboutVideo from "@/components/Home/HomeAboutVideo";
 import Blog from "@/components/Blog/Blog";
+import { home } from "@/data/home";
+import { BUSINESS, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 // Server component on purpose (no "use client"): every heading and paragraph
 // of the home page is rendered on the server. Only tiny interactive leaves
-// (camera, sliders, form, scroll-reveal) are client components.
-
-// TODO: put the real production domain here (or set NEXT_PUBLIC_SITE_URL).
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://atelier-bakhtiari.ir";
+// (slider mechanics, click-to-play video, blog slider, scroll-reveal) are
+// client components.
+//
+// The home page is now a landing hub that sends visitors to the two category
+// pages: /kids (the old home page) and /wedding.
 
 export const metadata: Metadata = {
-  title: "آتلیه بختیاری | عکاسی کودک، عروسی و پرتره در تهران",
-  description:
-    "آتلیه بختیاری؛ عکاسی تخصصی کودک و نوزاد، عروسی، عقد، پرتره و فرمالیته با نور استودیویی و فضایی آرام. مشاهده نمونه‌کارها، پکیج‌ها و رزرو نوبت عکاسی.",
+  title: home.seo.title,
+  description: home.seo.description,
+  keywords: home.seo.keywords,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "آتلیه بختیاری | عکاسی کودک، عروسی و پرتره در تهران",
-    description:
-      "عکاسی تخصصی کودک، عروسی، عقد، پرتره و فرمالیته با نور استودیویی. نمونه‌کارها و رزرو نوبت.",
+    title: home.seo.title,
+    description: home.seo.description,
     type: "website",
     locale: "fa_IR",
     url: "/",
-    siteName: "آتلیه بختیاری",
-    images: ["/images/slides/sample-1.jpg"],
+    siteName: SITE_NAME,
+    images: [home.seo.ogImage],
   },
 };
 
-// Structured data (JSON-LD). Contact details mirror what is shown on the page —
-// replace the placeholder phone / address with the real ones.
+// Structured data (JSON-LD). The @id values (#website, #business) are also
+// referenced by the /kids and /wedding pages (see lib/seo.ts).
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -41,37 +39,35 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: "آتلیه بختیاری",
+      name: SITE_NAME,
       inLanguage: "fa-IR",
     },
     {
       "@type": "LocalBusiness",
       "@id": `${SITE_URL}/#business`,
-      name: "آتلیه بختیاری",
+      name: SITE_NAME,
       alternateName: "Bakhtiari Photography Studio",
-      description:
-        "آتلیه تخصصی عکاسی کودک، عروسی، عقد، پرتره و فرمالیته با نور استودیویی.",
+      description: home.seo.description,
       url: SITE_URL,
       logo: `${SITE_URL}/images/logo.png`,
-      image: `${SITE_URL}/images/slides/sample-1.jpg`,
-      telephone: "+989121234567",
-      email: "hello@atelier-bakhtiari.ir",
+      image: `${SITE_URL}${home.seo.ogImage}`,
+      telephone: BUSINESS.phone,
+      email: BUSINESS.email,
       address: {
         "@type": "PostalAddress",
-        addressLocality: "تهران",
-        addressCountry: "IR",
+        addressLocality: BUSINESS.city,
+        addressCountry: BUSINESS.country,
       },
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: "خدمات آتلیه بختیاری",
-        itemListElement: [
-          "عکاسی عروسی",
-          "فیلم‌برداری",
-          "عکاسی کودک",
-          "عکاسی پرتره",
-        ].map((name) => ({
+        itemListElement: home.categories.items.map((item) => ({
           "@type": "Offer",
-          itemOffered: { "@type": "Service", name },
+          itemOffered: {
+            "@type": "Service",
+            name: item.title,
+            url: `${SITE_URL}${item.href}`,
+          },
         })),
       },
     },
@@ -89,14 +85,10 @@ export default function Home() {
         }}
       />
       <main>
-        <Hero />
-        <Categories />
-        <Services />
-        <About />
-        <Portfolio />
-        <Plans />
-        <Booking />
-        <Blog />
+        <HomeSlider data={home.slider} />
+        <HomeCategories data={home.categories} />
+        <HomeAboutVideo video={home.video} about={home.about} />
+        <Blog data={home.blog} />
       </main>
     </>
   );
