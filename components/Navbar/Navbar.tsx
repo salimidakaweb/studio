@@ -223,7 +223,7 @@ export default function Navbar() {
                         href={item.href}
                         aria-current={active ? "page" : undefined}
                         aria-expanded={isMegaOpen}
-                        className={`group relative flex items-center gap-1.5 py-2 text-sm font-medium transition-colors duration-300 ${
+                        className={`group relative flex items-center py-2 text-sm font-medium transition-colors duration-300 ${
                           active || isMegaOpen
                             ? "text-[var(--primary)]"
                             : "text-black/70 hover:text-[var(--primary)]"
@@ -311,7 +311,7 @@ export default function Navbar() {
             </div>
 
             {/* Right-side actions (visually left, due to RTL flex order) */}
-            <div className="hidden items-center gap-3 lg:flex">
+            <div className="hidden items-center gap-1.5 lg:flex">
               {/* Phone pill */}
               <a
                 href="tel:+989121234567"

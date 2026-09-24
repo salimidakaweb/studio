@@ -17,7 +17,7 @@ export default function HomeAboutVideo({
   return (
     <section
       id="about"
-      className="bg-[#f5f2ec] pb-14 pt-10 lg:pb-20 lg:pt-14"
+      className="bg-[#f5f2ec] pt-2 lg:pt-30"
     >
       <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2 lg:gap-16 lg:px-12">
         {/* About text (first in source = right side in RTL) */}
