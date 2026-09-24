@@ -9,7 +9,7 @@ export default function HomeSlider({
   return (
     <section
       aria-label="اسلایدر"
-      className="relative"
+      className="relative bg-[#f5f2ec]"
     >
       <h1 className="sr-only">
         {data.title}

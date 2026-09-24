@@ -38,6 +38,8 @@ export default function HomeSliderClient({
 
   const [settling, setSettling] = useState(false);
 
+  const [mounted, setMounted] = useState(false);
+
   const [direction, setDirection] =
     useState<Direction>(null);
 
@@ -73,7 +75,13 @@ export default function HomeSliderClient({
    * AUTOPLAY
    * ---------------------------------------------------------
    */
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
 
+    return () => cancelAnimationFrame(frame);
+  }, []);
   useEffect(() => {
     if (
       paused ||
@@ -83,6 +91,7 @@ export default function HomeSliderClient({
     ) {
       return;
     }
+
 
     const timer =
       window.setInterval(() => {
@@ -442,17 +451,26 @@ export default function HomeSliderClient({
   return (
     <div
       ref={rootRef}
-      className="
-        relative
-        h-[70svh]
-        min-h-[440px]
-        w-full
-        touch-pan-y
-        select-none
-        overflow-hidden
-        bg-[#0F1B22]
-        lg:h-[78svh]
-      "
+      className={`
+    relative
+    h-[70svh]
+    min-h-[440px]
+    w-full
+    touch-pan-y
+    select-none
+    overflow-hidden
+    bg-[#0F1B22]
+    lg:h-[78svh]
+
+    transition-all
+    duration-700
+    ease-out
+
+    ${mounted
+          ? "translate-y-0 opacity-100"
+          : "translate-y-4 opacity-0"
+        }
+  `}
       onPointerDown={
         handlePointerDown
       }
@@ -538,13 +556,13 @@ export default function HomeSliderClient({
                 src={slide.image}
                 alt={slide.alt}
                 fill
-                priority
+                priority={index === 0 && role === "active"}
                 sizes="100vw"
                 draggable={false}
                 className="
-                  pointer-events-none
-                  object-cover
-                "
+    pointer-events-none
+    object-cover
+  "
               />
             </div>
           );
@@ -658,10 +676,9 @@ export default function HomeSliderClient({
                     transition-all
                     duration-300
 
-                    ${
-                      i === index
-                        ? "w-6 bg-white"
-                        : "w-1.5 bg-white/40 hover:bg-white/70"
+                    ${i === index
+                      ? "w-6 bg-white"
+                      : "w-1.5 bg-white/40 hover:bg-white/70"
                     }
                   `}
                 />
