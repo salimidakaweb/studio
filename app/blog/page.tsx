@@ -1,32 +1,33 @@
-import BlogCard from "@/components/Blog/BlogPage/BlogCard";
-import Pagination from "@/components/Blog/BlogPage/Pagination";
-import Reveal from "@/components/Ui/Reveal";
-import { getPosts } from "@/lib/Blog";
+import { Suspense } from "react";
 import type { Metadata } from "next";
-
+import Reveal from "@/components/Ui/Reveal";
+import BlogListingClient from "@/components/Blog/BlogPage/BlogListingClient";
 
 // The blog listing is intentionally NOT indexed and not in the sitemap.
+// Keep this as a Server Component so `metadata` still applies even though
+// the list itself is fetched on the client (dynamic, noindex — no SEO cost).
 export const metadata: Metadata = {
   title: "وبلاگ | آتلیه بختیاری",
   description: "مقالات و راهنمای عکاسی آتلیه بختیاری.",
   robots: { index: false, follow: true },
 };
 
-type BlogPageProps = {
-  searchParams: Promise<{ page?: string }>;
-};
-
-export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const { page: pageParam } = await searchParams;
-  const requested = Number.parseInt(pageParam ?? "1", 10);
-
-  const { posts, page, totalPages } = await getPosts(
-    Number.isNaN(requested) ? 1 : requested
+function BlogListingFallback() {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-[340px] animate-pulse rounded-sm bg-white shadow-[0_16px_36px_-20px_rgba(20,18,15,0.3)]"
+        />
+      ))}
+    </div>
   );
+}
 
+export default function BlogPage() {
   return (
     <>
-
       <main className="bg-[#f5f2ec]">
         <section className="relative overflow-hidden py-14 lg:py-16">
           <div
@@ -36,7 +37,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           />
 
           <div className="relative mx-auto w-full max-w-6xl px-6 lg:px-12">
-            {/* Heading */}
+            {/* Heading — still server-rendered (lightweight, no data fetch) */}
             <Reveal y={25} className="mb-10 text-right">
               <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
                 <span className="h-px w-6 bg-[var(--primary)]" />
@@ -54,20 +55,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </p>
             </Reveal>
 
-            {/* 3 columns x 3 rows on desktop (9 per page) */}
-            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post, index) => (
-                <li key={post.id}>
-                  <BlogCard post={post} priority={index < 3} />
-                </li>
-              ))}
-            </ul>
-
-            <Pagination page={page} totalPages={totalPages} basePath="/blog" />
+            {/* Dynamic listing — client-side fetch (noindex, so CSR is fine).
+                Uses the same getPosts() shape as before; when NEXT_PUBLIC_API_URL
+                is set it hits the real API, otherwise falls back to SAMPLE_POSTS. */}
+            <Suspense fallback={<BlogListingFallback />}>
+              <BlogListingClient />
+            </Suspense>
           </div>
         </section>
       </main>
-
     </>
   );
 }
