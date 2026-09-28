@@ -7,29 +7,18 @@ export default function HomeSlider({
   data: HomeData["slider"];
 }) {
   return (
-    <section
-      aria-label="اسلایدر"
-      className="relative bg-[#f5f2ec]"
-    >
-      <h1 className="sr-only">
-        {data.title}
-      </h1>
+    <section aria-label="اسلایدر" className="relative bg-[#f5f2ec]">
+      <h1 className="sr-only">{data.title}</h1>
 
-      <p className="sr-only">
-        {data.subtitle}
-      </p>
+      <p className="sr-only">{data.subtitle}</p>
 
       <HomeSliderClient
-        slides={data.slides.map(
-          (slide) => ({
-            image: slide.image,
-            alt: slide.alt,
-          })
-        )}
-        labels={data.slides.map(
-          (slide) =>
-            slide.caption
-        )}
+        slides={data.slides.map((slide) => ({
+          image: slide.image,
+          alt: slide.alt,
+          caption: slide.caption,
+          href: slide.href,
+        }))}
       />
     </section>
   );

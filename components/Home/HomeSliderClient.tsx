@@ -1,689 +1,362 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const AUTOPLAY_MS = 6000;
-const SWIPE_FRACTION = 0.1;
-const SETTLE_MS = 450;
+const SWIPE_FRACTION = 0.15;
+const SETTLE_MS = 480;
 
-type Direction = "next" | "prev" | null;
+type Slide = { image: string; alt: string; caption: string; href: string };
 
-type Slide = {
-  image: string;
-  alt: string;
-};
-
-export default function HomeSliderClient({
-  slides,
-  labels,
-}: {
-  slides: Slide[];
-  labels: string[];
-}) {
+export default function HomeSliderClient({ slides }: { slides: Slide[] }) {
   const count = slides.length;
+  const hasLoop = count > 1;
 
-  const [index, setIndex] = useState(0);
-
+  // trackPos: 0 = cloneLast, 1..count = real slides, count+1 = cloneFirst
+  const [trackPos, setTrackPos] = useState(hasLoop ? 1 : 0);
+  const [mounted, setMounted] = useState(false);
   const [paused, setPaused] = useState(false);
-
-  const [dragX, setDragX] = useState(0);
-
   const [dragging, setDragging] = useState(false);
 
-  const [settling, setSettling] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
-  const [mounted, setMounted] = useState(false);
+  // Mutable mirrors (so event handlers never read stale state)
+  const posRef = useRef(hasLoop ? 1 : 0);
+  const busyRef = useRef(false); // an animation is running
+  const draggingRef = useRef(false);
+  const widthRef = useRef(1);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const movedRef = useRef(false);
+  const lockedRef = useRef<"x" | "y" | null>(null);
+  const pointerIdRef = useRef<number | null>(null);
+  const fallbackRef = useRef<number | null>(null);
+  const resumeRef = useRef<number | null>(null);
 
-  const [direction, setDirection] =
-    useState<Direction>(null);
+  const realIndex = hasLoop ? (((trackPos - 1) % count) + count) % count : 0;
 
-  const [transition, setTransition] =
-    useState(false);
-
-  const rootRef =
-    useRef<HTMLDivElement>(null);
-
-  const pointerIdRef =
-    useRef<number | null>(null);
-
-  const startXRef =
-    useRef(0);
-
-  const widthRef =
-    useRef(1);
-
-  /*
-   * ---------------------------------------------------------
-   * INDEXES
-   * ---------------------------------------------------------
-   */
-
-  const prevIndex =
-    (index - 1 + count) % count;
-
-  const nextIndex =
-    (index + 1) % count;
-
-  /*
-   * ---------------------------------------------------------
-   * AUTOPLAY
-   * ---------------------------------------------------------
-   */
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setMounted(true);
-    });
-
-    return () => cancelAnimationFrame(frame);
+  // ---- low-level track helpers ------------------------------------------
+  // NOTE: the site is dir="rtl". The track is forced to dir="ltr" (see JSX) so
+  // that slide N always sits at N * 100% from the left. That way translateX
+  // math is identical in LTR and RTL and the clones line up correctly.
+  const setTransition = useCallback((on: boolean) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.style.transition = on
+      ? `transform ${SETTLE_MS}ms cubic-bezier(0.22,1,0.36,1)`
+      : "none";
   }, []);
+
+  const setTransform = useCallback((pos: number, dragPx = 0) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const w = widthRef.current || 1;
+    el.style.transform = `translate3d(${-pos * 100 + (dragPx / w) * 100}%,0,0)`;
+  }, []);
+
+  // Jump (no animation) to a position. Forces a reflow so the browser commits
+  // the un-animated position before transitions are turned back on.
+  const jumpTo = useCallback(
+    (pos: number) => {
+      const el = trackRef.current;
+      setTransition(false);
+      posRef.current = pos;
+      setTrackPos(pos);
+      setTransform(pos, 0);
+      if (el) void el.offsetWidth; // reflow
+      setTransition(true);
+    },
+    [setTransition, setTransform]
+  );
+
+  // After an animation finishes: if we are sitting on a clone, silently jump
+  // to its real twin.
+  const finishAnimation = useCallback(() => {
+    if (fallbackRef.current) {
+      window.clearTimeout(fallbackRef.current);
+      fallbackRef.current = null;
+    }
+    const pos = posRef.current;
+    if (pos === 0) jumpTo(count);
+    else if (pos === count + 1) jumpTo(1);
+    busyRef.current = false;
+  }, [count, jumpTo]);
+
+  const goToPos = useCallback(
+    (nextPos: number) => {
+      if (busyRef.current || draggingRef.current) return;
+      busyRef.current = true;
+      setTransition(true);
+      posRef.current = nextPos;
+      setTrackPos(nextPos);
+      setTransform(nextPos, 0);
+      // Safety net: transitionend is not guaranteed (hidden tab, reduced
+      // motion, interrupted transition...). Never leave the slider locked.
+      if (fallbackRef.current) window.clearTimeout(fallbackRef.current);
+      fallbackRef.current = window.setTimeout(finishAnimation, SETTLE_MS + 120);
+    },
+    [finishAnimation, setTransition, setTransform]
+  );
+
+  const next = useCallback(() => {
+    if (hasLoop) goToPos(posRef.current + 1);
+  }, [hasLoop, goToPos]);
+
+  const prev = useCallback(() => {
+    if (hasLoop) goToPos(posRef.current - 1);
+  }, [hasLoop, goToPos]);
+
+  const goToIndex = useCallback(
+    (target: number) => {
+      if (!hasLoop || busyRef.current || draggingRef.current) return;
+      const cur = (((posRef.current - 1) % count) + count) % count;
+      if (target === cur) return;
+      const diff = (target - cur + count) % count;
+      if (diff === 1) next();
+      else if (diff === count - 1) prev();
+      else jumpTo(target + 1); // far jump: instant, no long sweep
+    },
+    [hasLoop, count, next, prev, jumpTo]
+  );
+
+  // ---- lifecycle -----------------------------------------------------------
   useEffect(() => {
-    if (
-      paused ||
-      dragging ||
-      settling ||
-      count < 2
-    ) {
-      return;
-    }
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
-
-    const timer =
-      window.setInterval(() => {
+  // initial position (no animation) + keep width up to date
+  useEffect(() => {
+    const measure = () => {
+      widthRef.current = rootRef.current?.clientWidth || 1;
+      if (!draggingRef.current && !busyRef.current) {
+        setTransition(false);
+        setTransform(posRef.current, 0);
+        void trackRef.current?.offsetWidth;
         setTransition(true);
-
-        setIndex((current) => {
-          return (
-            (current + 1) % count
-          );
-        });
-      }, AUTOPLAY_MS);
-
-    return () => {
-      window.clearInterval(timer);
+      }
     };
-  }, [
-    paused,
-    dragging,
-    settling,
-    count,
-  ]);
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (rootRef.current) ro.observe(rootRef.current);
+    return () => ro.disconnect();
+  }, [setTransition, setTransform]);
 
-  /*
-   * ---------------------------------------------------------
-   * WIDTH
-   * ---------------------------------------------------------
-   */
+  // autoplay (also pauses when the tab is hidden)
+  useEffect(() => {
+    if (!hasLoop || paused || dragging) return;
+    const t = window.setInterval(() => {
+      if (document.hidden) return;
+      next();
+    }, AUTOPLAY_MS);
+    return () => window.clearInterval(t);
+  }, [hasLoop, paused, dragging, next]);
 
-  function measureWidth() {
-    widthRef.current =
-      rootRef.current?.clientWidth || 1;
-  }
+  // if the tab was hidden mid-animation, make sure we are not stuck on a clone
+  useEffect(() => {
+    const onVisible = () => {
+      if (!document.hidden && busyRef.current) finishAnimation();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [finishAnimation]);
 
-  /*
-   * ---------------------------------------------------------
-   * NAVIGATION
-   * ---------------------------------------------------------
-   */
+  useEffect(
+    () => () => {
+      if (fallbackRef.current) window.clearTimeout(fallbackRef.current);
+      if (resumeRef.current) window.clearTimeout(resumeRef.current);
+    },
+    []
+  );
 
-  function goTo(target: number) {
-    if (
-      dragging ||
-      settling ||
-      count < 2
-    ) {
-      return;
-    }
-
-    setTransition(true);
-
-    setIndex(
-      (target + count) % count
-    );
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * POINTER DOWN
-   * ---------------------------------------------------------
-   */
-
-  function handlePointerDown(
-    e: PointerEvent<HTMLDivElement>
-  ) {
-    if (
-      count < 2 ||
-      settling
-    ) {
-      return;
-    }
-
-    const target =
-      e.target as HTMLElement;
-
-    if (
-      target.closest("button")
-    ) {
-      return;
-    }
-
-    measureWidth();
-
-    pointerIdRef.current =
-      e.pointerId;
-
-    startXRef.current =
-      e.clientX;
-
-    setTransition(false);
-
-    setDragX(0);
-
+  // ---- pointer / swipe -----------------------------------------------------
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (!hasLoop || busyRef.current) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("button")) return;
+    widthRef.current = rootRef.current?.clientWidth || 1;
+    pointerIdRef.current = e.pointerId;
+    startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
+    movedRef.current = false;
+    lockedRef.current = null;
+    draggingRef.current = true;
     setDragging(true);
-
     setPaused(true);
-
-    e.currentTarget.setPointerCapture(
-      e.pointerId
-    );
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * POINTER MOVE
-   * ---------------------------------------------------------
-   */
-
-  function handlePointerMove(
-    e: PointerEvent<HTMLDivElement>
-  ) {
-    if (
-      !dragging ||
-      pointerIdRef.current !== e.pointerId
-    ) {
-      return;
-    }
-
-    const delta =
-      e.clientX -
-      startXRef.current;
-
-    setDragX(delta);
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * POINTER UP
-   * ---------------------------------------------------------
-   */
-
-  function handlePointerUp(
-    e: PointerEvent<HTMLDivElement>
-  ) {
-    if (
-      !dragging ||
-      pointerIdRef.current !== e.pointerId
-    ) {
-      return;
-    }
-
-    /*
-     * خیلی مهم:
-     *
-     * از state یعنی dragX استفاده نمی‌کنیم.
-     * مقدار واقعی Pointer را مستقیم می‌گیریم.
-     */
-
-    const delta =
-      e.clientX -
-      startXRef.current;
-
-    const width =
-      widthRef.current || 1;
-
-    pointerIdRef.current = null;
-
-    setDragging(false);
-
-    /*
-     * -------------------------------------------------------
-     * SWIPE NOT ENOUGH
-     * -------------------------------------------------------
-     */
-
-    if (
-      Math.abs(delta) <
-      width * SWIPE_FRACTION
-    ) {
-      setTransition(true);
-
-      setDragX(0);
-
-      setPaused(false);
-
-      return;
-    }
-
-    /*
-     * -------------------------------------------------------
-     * NEXT
-     * -------------------------------------------------------
-     */
-
-    if (delta < 0) {
-      setDirection("next");
-
-      setSettling(true);
-
-      setTransition(true);
-
-      setDragX(-width);
-
-      return;
-    }
-
-    /*
-     * -------------------------------------------------------
-     * PREVIOUS
-     * -------------------------------------------------------
-     */
-
-    setDirection("prev");
-
-    setSettling(true);
-
-    setTransition(true);
-
-    setDragX(width);
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * POINTER CANCEL
-   * ---------------------------------------------------------
-   */
-
-  function handlePointerCancel(
-    e: PointerEvent<HTMLDivElement>
-  ) {
-    if (
-      pointerIdRef.current !==
-      e.pointerId
-    ) {
-      return;
-    }
-
-    pointerIdRef.current = null;
-
-    setDragging(false);
-
-    setSettling(false);
-
-    setDirection(null);
-
-    setTransition(true);
-
-    setDragX(0);
-
-    setPaused(false);
-  }
-
-  /*
-   * ---------------------------------------------------------
-   * TRANSITION END
-   * ---------------------------------------------------------
-   */
-
-  function handleTransitionEnd(
-    e: React.TransitionEvent<HTMLDivElement>
-  ) {
-    /*
-     * فقط transform مهم است.
-     */
-
-    if (
-      e.propertyName !== "transform"
-    ) {
-      return;
-    }
-
-    if (
-      !settling ||
-      !direction
-    ) {
-      return;
-    }
-
-    /*
-     * -------------------------------------------------------
-     * نکته اصلی اصلاح:
-     *
-     * index را عوض می‌کنیم و بلافاصله
-     * transition را خاموش می‌کنیم.
-     *
-     * بنابراین کاربر هیچ فریم اضافی
-     * از تعویض پنل نمی‌بیند.
-     * -------------------------------------------------------
-     */
-
-    const newIndex =
-      direction === "next"
-        ? (index + 1) % count
-        : (index - 1 + count) % count;
-
     setTransition(false);
-
-    setIndex(newIndex);
-
-    setDragX(0);
-
-    setSettling(false);
-
-    setDirection(null);
-
-    /*
-     * یک frame صبر می‌کنیم تا layout جدید
-     * commit شود؛ بعد transition را دوباره
-     * فعال می‌کنیم.
-     */
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setTransition(true);
-
-        setPaused(false);
-      });
-    });
   }
 
-  /*
-   * ---------------------------------------------------------
-   * DRAG %
-   * ---------------------------------------------------------
-   */
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!draggingRef.current || pointerIdRef.current !== e.pointerId) return;
+    const dx = e.clientX - startXRef.current;
+    const dy = e.clientY - startYRef.current;
 
-  const dragPercent =
-    (dragX /
-      (widthRef.current || 1)) *
-    100;
+    // decide axis once, so vertical page scroll on touch still works
+    if (!lockedRef.current) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      lockedRef.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      if (lockedRef.current === "x") {
+        try {
+          rootRef.current?.setPointerCapture(e.pointerId);
+        } catch {}
+      }
+    }
+    if (lockedRef.current === "y") return;
 
-  /*
-   * ---------------------------------------------------------
-   * PANELS
-   *
-   * سه پنل ثابت:
-   *
-   * prev
-   * active
-   * next
-   *
-   * ---------------------------------------------------------
-   */
+    movedRef.current = true;
+    const w = widthRef.current || 1;
+    const clamped = Math.max(Math.min(dx, w), -w);
+    setTransform(posRef.current, clamped);
+  }
 
-  const panels = [
-    {
-      role: "prev" as const,
-      slide:
-        slides[prevIndex],
-      position: -1,
-    },
+  function endDrag(e: React.PointerEvent<HTMLDivElement>, cancelled: boolean) {
+    if (!draggingRef.current || pointerIdRef.current !== e.pointerId) return;
+    pointerIdRef.current = null;
+    draggingRef.current = false;
+    setDragging(false);
+    try {
+      rootRef.current?.releasePointerCapture(e.pointerId);
+    } catch {}
 
-    {
-      role: "active" as const,
-      slide:
-        slides[index],
-      position: 0,
-    },
+    const dx = e.clientX - startXRef.current;
+    const w = widthRef.current || 1;
+    const horizontal = lockedRef.current === "x";
+    lockedRef.current = null;
 
-    {
-      role: "next" as const,
-      slide:
-        slides[nextIndex],
-      position: 1,
-    },
-  ];
+    const resume = () => {
+      if (resumeRef.current) window.clearTimeout(resumeRef.current);
+      resumeRef.current = window.setTimeout(() => setPaused(false), SETTLE_MS);
+    };
+
+    if (cancelled || !horizontal || Math.abs(dx) < w * SWIPE_FRACTION) {
+      setTransition(true);
+      setTransform(posRef.current, 0); // snap back
+      resume();
+      return;
+    }
+    // finger moves left (dx<0) -> go to next slide
+    goToPos(posRef.current + (dx < 0 ? 1 : -1));
+    resume();
+  }
+
+  // a drag must not trigger the slide link
+  function onClickCapture(e: React.MouseEvent<HTMLDivElement>) {
+    if (movedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      movedRef.current = false;
+    }
+  }
+
+  // ---- render ----------------------------------------------------------------
+  const trackItems = hasLoop ? [slides[count - 1], ...slides, slides[0]] : slides;
 
   return (
     <div
       ref={rootRef}
-      className={`
-    relative
-    h-[70svh]
-    min-h-[440px]
-    w-full
-    touch-pan-y
-    select-none
-    overflow-hidden
-    bg-[#0F1B22]
-    lg:h-[78svh]
-
-    transition-all
-    duration-700
-    ease-out
-
-    ${mounted
-          ? "translate-y-0 opacity-100"
-          : "translate-y-4 opacity-0"
-        }
-  `}
-      onPointerDown={
-        handlePointerDown
-      }
-      onPointerMove={
-        handlePointerMove
-      }
-      onPointerUp={
-        handlePointerUp
-      }
-      onPointerCancel={
-        handlePointerCancel
-      }
-      onMouseEnter={() =>
-        setPaused(true)
-      }
-      onMouseLeave={() => {
-        if (
-          !dragging &&
-          !settling
-        ) {
-          setPaused(false);
-        }
-      }}
+      dir="ltr"
+      className={`relative h-[70svh] min-h-[440px] w-full select-none overflow-hidden bg-[#0F1B22] lg:h-[78svh] ${
+        mounted ? "opacity-100" : "opacity-0"
+      }`}
       style={{
-        cursor:
-          count > 1
-            ? dragging
-              ? "grabbing"
-              : "grab"
-            : undefined,
+        transition: "opacity 700ms cubic-bezier(0.22,1,0.36,1)",
+        touchAction: "pan-y",
+        cursor: hasLoop ? (dragging ? "grabbing" : "grab") : undefined,
       }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={(e) => endDrag(e, false)}
+      onPointerCancel={(e) => endDrag(e, true)}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => {
+        if (!draggingRef.current) setPaused(false);
+      }}
+      onClickCapture={onClickCapture}
     >
-      {/*
-       * =====================================================
-       * SLIDES
-       * =====================================================
-       */}
-
-      {panels.map(
-        ({
-          role,
-          slide,
-          position,
-        }) => {
-          const x =
-            position * 100 +
-            dragPercent;
-
+      <div
+        ref={trackRef}
+        className="flex h-full w-full"
+        style={{
+          transform: `translate3d(${hasLoop ? -100 : 0}%,0,0)`,
+          willChange: "transform",
+        }}
+        onTransitionEnd={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (e.propertyName !== "transform") return;
+          if (busyRef.current) finishAnimation();
+        }}
+      >
+        {trackItems.map((slide, i) => {
+          const isClone = hasLoop && (i === 0 || i === trackItems.length - 1);
           return (
             <div
-              key={role}
-              aria-hidden={
-                role !== "active"
-              }
-              className="
-                absolute
-                inset-0
-                overflow-hidden
-              "
-              style={{
-                transform:
-                  `translate3d(${x}%, 0, 0)`,
-
-                transition: transition
-                  ? `transform ${SETTLE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`
-                  : "none",
-
-                willChange:
-                  "transform",
-
-                zIndex:
-                  role === "active"
-                    ? 2
-                    : 1,
-              }}
-              onTransitionEnd={
-                role === "active"
-                  ? handleTransitionEnd
-                  : undefined
-              }
+              key={`${slide.image}-${i}`}
+              className="relative h-full w-full shrink-0 basis-full overflow-hidden"
+              aria-hidden={isClone || undefined}
             >
               <Image
                 src={slide.image}
-                alt={slide.alt}
+                alt={isClone ? "" : slide.alt}
                 fill
-                priority={index === 0 && role === "active"}
+                priority={i === (hasLoop ? 1 : 0)}
                 sizes="100vw"
                 draggable={false}
-                className="
-    pointer-events-none
-    object-cover
-  "
+                className="pointer-events-none object-cover"
               />
+              {/* soft gradient so the caption is always readable */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent" />
+
+              <div className="absolute inset-x-0 bottom-14 z-10 flex justify-center px-4 sm:bottom-16">
+                <Link
+                  href={slide.href}
+                  tabIndex={isClone ? -1 : 0}
+                  dir="rtl"
+                  draggable={false}
+                  className="rounded-full border border-white/40 bg-black/25 px-6 py-2.5 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white hover:text-[var(--ink)] sm:text-base"
+                >
+                  {slide.caption}
+                </Link>
+              </div>
             </div>
           );
-        }
-      )}
+        })}
+      </div>
 
-      {/*
-       * =====================================================
-       * ARROWS
-       * =====================================================
-       */}
-
-      {count > 1 && (
+      {hasLoop && (
         <>
           <button
             type="button"
-            onClick={() =>
-              goTo(index + 1)
-            }
-            aria-label="اسلاید بعدی"
-            className="
-              absolute
-              left-4
-              top-1/2
-              z-20
-              hidden
-              h-11
-              w-11
-              -translate-y-1/2
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-white/25
-              bg-black/20
-              text-white
-              backdrop-blur-sm
-              transition
-              hover:bg-white/15
-              sm:flex
-            "
+            onClick={prev}
+            aria-label="اسلاید قبلی"
+            className="absolute left-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/20 text-white backdrop-blur-sm transition hover:bg-white/15 sm:flex"
           >
             ←
           </button>
-
           <button
             type="button"
-            onClick={() =>
-              goTo(index - 1)
-            }
-            aria-label="اسلاید قبلی"
-            className="
-              absolute
-              right-4
-              top-1/2
-              z-20
-              hidden
-              h-11
-              w-11
-              -translate-y-1/2
-              items-center
-              justify-center
-              rounded-full
-              border
-              border-white/25
-              bg-black/20
-              text-white
-              backdrop-blur-sm
-              transition
-              hover:bg-white/15
-              sm:flex
-            "
+            onClick={next}
+            aria-label="اسلاید بعدی"
+            className="absolute right-4 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/20 text-white backdrop-blur-sm transition hover:bg-white/15 sm:flex"
           >
             →
           </button>
 
-          {/*
-           * =================================================
-           * DOTS
-           * =================================================
-           */}
-
-          <div
-            className="
-              pointer-events-none
-              absolute
-              inset-x-0
-              bottom-5
-              z-20
-              flex
-              justify-center
-              gap-2
-            "
-          >
-            {labels.map(
-              (label, i) => (
-                <button
-                  key={`${label}-${i}`}
-                  type="button"
-                  onClick={() =>
-                    goTo(i)
-                  }
-                  aria-label={`نمایش اسلاید ${i + 1}`}
-                  aria-current={
-                    i === index
-                  }
-                  className={`
-                    pointer-events-auto
-                    h-1.5
-                    rounded-full
-                    transition-all
-                    duration-300
-
-                    ${i === index
-                      ? "w-6 bg-white"
-                      : "w-1.5 bg-white/40 hover:bg-white/70"
-                    }
-                  `}
-                />
-              )
-            )}
+          <div className="pointer-events-none absolute inset-x-0 bottom-5 z-20 flex justify-center gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={`${s.image}-dot-${i}`}
+                type="button"
+                onClick={() => goToIndex(i)}
+                aria-label={`نمایش اسلاید ${i + 1}`}
+                aria-current={i === realIndex}
+                className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 ${
+                  i === realIndex ? "w-6 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"
+                }`}
+              />
+            ))}
           </div>
         </>
       )}
