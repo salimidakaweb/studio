@@ -9,7 +9,15 @@ export default function About({ data }: { data: CategoryData["about"] }) {
   return (
     <section
       id="about"
-      className="relative flex h-[670px] items-center overflow-hidden bg-[#f5f2ec]"
+      className="
+    relative
+    overflow-hidden
+    bg-[#f5f2ec]
+    py-10
+    sm:py-12
+    lg:py-10
+    xl:py-12
+  "
     >
       {/* Subtle brand-tinted ambient accent */}
       <div
@@ -18,19 +26,29 @@ export default function About({ data }: { data: CategoryData["about"] }) {
         style={{ background: "var(--primary)" }}
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-6 lg:grid-cols-2 lg:gap-16 lg:px-12">
+      <div
+        className="
+          relative
+          mx-auto
+          grid
+          w-full
+          max-w-6xl
+          items-center
+          gap-10
+          px-6
+          lg:grid-cols-2
+          lg:gap-16
+          lg:px-12
+        "
+      >
         {/* Image */}
-        <Reveal
-          x={-40}
-          y={0}
-          className="relative mx-auto w-full max-w-xs"
-        >
+        <Reveal x={-40} y={0} className="relative mx-auto w-full max-w-xs">
           <div className="group relative aspect-[4/5] overflow-hidden rounded-sm shadow-[0_16px_36px_-16px_rgba(20,18,15,0.3)]">
             <Image
               src={data.image}
               alt={data.imageAlt}
               fill
-              sizes="320px"
+              sizes="(max-width: 640px) 100vw, 320px"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
 
@@ -53,7 +71,7 @@ export default function About({ data }: { data: CategoryData["about"] }) {
         </Reveal>
 
         {/* Content */}
-        <Reveal x={40} y={0} delay={0.15} className="text-right">
+        <Reveal x={40} y={0} delay={0.15} className="w-full text-right">
           <span className="inline-flex items-center gap-2 text-[11px] tracking-[0.3em] text-[var(--primary-dark)]">
             <span className="h-px w-6 bg-[var(--primary)]" />
             {data.eyebrow}
@@ -70,35 +88,64 @@ export default function About({ data }: { data: CategoryData["about"] }) {
             ))}
           </div>
 
-          {/* Stats */}
-          <div className="mt-6 flex justify-end gap-8 border-t border-black/10 pt-5">
-            {data.stats.map((stat) => (
-              <div key={stat.label} className="text-right">
-                <div className="text-2xl font-light text-[var(--primary-dark)]">
-                  {stat.value}
-                </div>
-
-                <div className="mt-1 text-[11px] text-black/40">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Button */}
-          <div className="mt-6 flex justify-end">
-            <Link
-              href={data.cta.href}
-              className="group flex items-center gap-3 border-b border-[var(--primary)] pb-2 text-xs font-medium text-[#171512] transition-colors duration-300 hover:text-[var(--primary-dark)]"
-            >
-              <span
-                aria-hidden="true"
-                className="transition-transform duration-300 group-hover:-translate-x-2"
+          {/* Stats + Button */}
+          <div
+            className="
+    mt-5
+    flex
+    items-center
+    justify-between
+    gap-6
+    border-t
+    border-black/10
+    pt-4
+  "
+          >
+            {/* Button — left */}
+            <div className="shrink-0">
+              <Link
+                href={data.cta.href}
+                className="
+    group
+    inline-flex
+    items-center
+    gap-2
+    border-b
+    border-[var(--primary)]
+    pb-2
+    text-xs
+    font-medium
+    whitespace-nowrap
+    text-[#171512]
+    transition-colors
+    duration-300
+    hover:text-[var(--primary-dark)]
+  "
               >
-                ←
-              </span>
-              {data.cta.label}
-            </Link>
+                {data.cta.label}
+
+                <span
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:-translate-x-2"
+                >
+                  ←
+                </span>
+              </Link>
+            </div>
+            {/* Stats — right */}
+            <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
+              {data.stats.map((stat) => (
+                <div key={stat.label} className="min-w-[65px] text-right">
+                  <div className="text-2xl font-light leading-none text-[var(--primary-dark)]">
+                    {stat.value}
+                  </div>
+
+                  <div className="mt-1 text-[11px] text-black/40">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </Reveal>
       </div>

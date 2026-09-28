@@ -11,20 +11,38 @@ type GalleryModalProps = {
 };
 
 export default function GalleryModal({ album, onClose }: GalleryModalProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  // The active index is stored TOGETHER with the album it belongs to.
+  // When a different album is opened, the stored albumId no longer matches,
+  // so the index is treated as 0 in the SAME render (no effect, no stale
+  // index, no crash). This replaces the old "reset in useEffect" approach,
+  // which ran one render too late: the first render of a new album used the
+  // previous album's index -> album.images[index] was undefined.
+  const [active, setActive] = useState<{ albumId: string | null; index: number }>(
+    { albumId: null, index: 0 }
+  );
 
-  // Reset to the cover image whenever a different album is opened
-  // (but not on every re-render while the same album stays open).
-  const [openAlbumId, setOpenAlbumId] = useState<string | null>(null);
-  useEffect(() => {
-    if (album && album.id !== openAlbumId) {
-      setActiveIndex(0);
-      setOpenAlbumId(album.id);
-    }
-    if (!album && openAlbumId !== null) {
-      setOpenAlbumId(null);
-    }
-  }, [album, openAlbumId]);
+  const total = album?.images.length ?? 0;
+  const rawIndex = album && active.albumId === album.id ? active.index : 0;
+  // Extra safety net: never read past the end (e.g. if the API returns fewer
+  // images later, or the album is swapped while open).
+  const activeIndex = total > 0 ? Math.min(Math.max(rawIndex, 0), total - 1) : 0;
+
+  // When the modal closes, forget the stored index so re-opening the SAME
+  // album starts on its cover again (same as the original behaviour).
+  // This is the "adjust state while rendering" pattern from the React docs:
+  // it re-renders immediately, BEFORE anything is painted or any effect runs.
+  if (!album && active.albumId !== null) {
+    setActive({ albumId: null, index: 0 });
+  }
+
+  const setActiveIndex = (updater: number | ((current: number) => number)) => {
+    if (!album) return;
+    setActive((prev) => {
+      const current = prev.albumId === album.id ? prev.index : 0;
+      const next = typeof updater === "function" ? updater(current) : updater;
+      return { albumId: album.id, index: next };
+    });
+  };
 
   // Lock page scroll while the popup is open (same approach as the mobile nav menu).
   useEffect(() => {
@@ -58,8 +76,6 @@ export default function GalleryModal({ album, onClose }: GalleryModalProps) {
       window.scrollTo({ top: scrollY, behavior: "instant" as ScrollBehavior });
     };
   }, [album]);
-
-  const total = album?.images.length ?? 0;
 
   const goNext = () => {
     if (total < 2) return;
@@ -123,13 +139,15 @@ export default function GalleryModal({ album, onClose }: GalleryModalProps) {
 
             {/* Main image */}
             <div className="relative aspect-[4/3] w-full shrink-0 bg-black sm:aspect-[16/10]">
-              <Image
-                src={album.images[activeIndex].src}
-                alt={album.images[activeIndex].alt}
-                fill
-                sizes="(min-width: 1024px) 896px, 100vw"
-                className="object-cover"
-              />
+              {album.images[activeIndex] && (
+                <Image
+                  src={album.images[activeIndex].src}
+                  alt={album.images[activeIndex].alt}
+                  fill
+                  sizes="(min-width: 1024px) 896px, 100vw"
+                  className="object-cover"
+                />
+              )}
 
               {album.images.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-3">

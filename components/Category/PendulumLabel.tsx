@@ -43,7 +43,7 @@ export default function PendulumLabel({
         aria-hidden="true"
       />
       <h3
-        className="whitespace-nowrap rounded-sm border border-cyan-700/30 bg-[#f5f2ec] px-3 py-1 text-lg text-cyan-700 shadow-sm"
+        className="w-[16vw] rounded-sm border border-cyan-700/30 bg-[#f5f2ec] px-1 py-0.5 text-center text-[9px] leading-tight text-cyan-700 shadow-sm sm:w-auto sm:whitespace-nowrap sm:px-3 sm:py-1 sm:text-lg"
         style={{ direction: "rtl" }}
       >
         {title}

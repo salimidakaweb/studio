@@ -80,19 +80,19 @@ export default function Categories({
         </defs>
       </svg>
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
         <Reveal y={30} className="mb-16 text-right">
           <span className="inline-flex items-center gap-3 text-xs tracking-[0.35em] text-[var(--primary-dark)]">
             <span className="h-px w-8 bg-[var(--primary)]" />
             {data.eyebrow}
           </span>
-          <h2 className="mt-4 whitespace-nowrap text-2xl font-light text-black sm:text-4xl lg:text-6xl">
+          <h2 className="mt-4 text-2xl font-light leading-snug text-black sm:text-4xl lg:whitespace-nowrap lg:text-6xl">
             {data.title} <span className="font-medium">{data.titleAccent}</span>
           </h2>
         </Reveal>
 
         <div
-          className="relative mx-auto flex w-full overflow-visible"
+          className="relative mx-auto flex w-full items-start overflow-visible"
           style={{ direction: "ltr", gap: 0 }}
         >
           {categories.map((category, index) => {
@@ -121,7 +121,7 @@ export default function Categories({
                         src={category.image}
                         alt={category.imageAlt}
                         fill
-                        sizes="(max-width: 1024px) 50vw, 24vw"
+                        sizes="(max-width: 1024px) 25vw, 24vw"
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/5" />
